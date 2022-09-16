@@ -86,6 +86,8 @@ public class Launcher {
 			br.close();
 		} catch (Exception e) {
 			System.out.println("Couldn't read from file");
+			e.printStackTrace();
+			System.exit(0);
 		}
 
 		try {
