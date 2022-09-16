@@ -68,6 +68,7 @@ public class Launcher {
 					maxNumber = scanner.nextInt();
 				} else if (lineNumber <= numNodes){
 					Matcher nodeMatcher = nodePattern.matcher(line);
+					nodeMatcher.find();
 					int nodeID = Integer.parseInt(nodeMatcher.group(1));
 					String nodeHost = nodeMatcher.group(2);
 					int nodePort = Integer.parseInt(nodeMatcher.group(3));
@@ -85,7 +86,7 @@ public class Launcher {
 				}
 			}
 			br.close();
-		} catch (Exception e) {
+		} catch (IOException e) {
 			System.out.println(configFile.getPath());
 			System.out.println("Couldn't read from file");
 			e.printStackTrace();
