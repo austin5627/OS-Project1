@@ -67,9 +67,11 @@ public class Launcher {
 					snapshotDelay = scanner.nextInt();
 					maxNumber = scanner.nextInt();
 				} else if (lineNumber <= numNodes){
+					System.out.println(line);
 					Matcher nodeMatcher = nodePattern.matcher(line);
 					if (!nodeMatcher.find()){
 						System.out.println("No matches");
+						System.out.println(line);
 						System.exit(0);
 					}
 					int nodeID = Integer.parseInt(nodeMatcher.group(1));
