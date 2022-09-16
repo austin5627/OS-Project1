@@ -33,7 +33,8 @@ public class Launcher {
 	public static String nodeMap = "";
 
 	public static void main(String[] args) {
-		File configFile = new File("$CONFIGLOCAL");
+		String filename = System.getenv("$CONFIGLOCAL");
+		File configFile = new File(filename);
 
 		Pattern nodePattern = Pattern.compile("(\\d+) (dc\\d+) (\\d+)");
 		Pattern neighborPattern = Pattern.compile("\\d+\\b");
@@ -85,6 +86,7 @@ public class Launcher {
 			}
 			br.close();
 		} catch (Exception e) {
+			System.out.println(configFile.getPath());
 			System.out.println("Couldn't read from file");
 			e.printStackTrace();
 			System.exit(0);
