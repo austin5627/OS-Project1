@@ -59,7 +59,7 @@ public class Launcher {
 				}
 
 				if (lineNumber == 0) {
-					Scanner scanner = new Scanner(configFile);
+					Scanner scanner = new Scanner(line);
 					numNodes = scanner.nextInt();
 					minPerActive = scanner.nextInt();
 					maxPerActive = scanner.nextInt();
