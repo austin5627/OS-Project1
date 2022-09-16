@@ -68,7 +68,10 @@ public class Launcher {
 					maxNumber = scanner.nextInt();
 				} else if (lineNumber <= numNodes){
 					Matcher nodeMatcher = nodePattern.matcher(line);
-					nodeMatcher.find();
+					if (!nodeMatcher.find()){
+						System.out.println("No matches");
+						System.exit(0);
+					}
 					int nodeID = Integer.parseInt(nodeMatcher.group(1));
 					String nodeHost = nodeMatcher.group(2);
 					int nodePort = Integer.parseInt(nodeMatcher.group(3));
