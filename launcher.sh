@@ -7,7 +7,7 @@ export netid=ewc180001
 export PROJDIR=$HOME/cs6378/proj1
 
 # Directory where the config file is located on your local system
-export CONFIGLOCAL=$HOME/launch/config.txt
+export CONFIGLOCAL=./config.txt
 
 # Directory your java classes are in
 export BINDIR=$PROJDIR

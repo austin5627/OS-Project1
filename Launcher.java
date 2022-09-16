@@ -58,7 +58,6 @@ public class Launcher {
 					line = line.substring(0, line.indexOf('#'));
 				}
 
-				System.out.println(line + lineNumber);
 				if (lineNumber == 0) {
 					Scanner scanner = new Scanner(line);
 					numNodes = scanner.nextInt();
