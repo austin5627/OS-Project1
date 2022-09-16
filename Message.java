@@ -6,7 +6,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 
 // Enumeration to store message types
-enum MessageType{string};
+enum MessageType{string}
 
 // Object to store message passing between nodes
 // Message class can be modified to incoroporate all fields than need to be passed
@@ -63,5 +63,9 @@ public class Message implements Serializable
 
 		return msg;
 	}
-	
+
+	public int toInt() {
+		return Integer.parseInt(message);
+	}
+
 }
