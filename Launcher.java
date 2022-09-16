@@ -58,6 +58,7 @@ public class Launcher {
 					line = line.substring(0, line.indexOf('#'));
 				}
 
+				System.out.println(line + lineNumber);
 				if (lineNumber == 0) {
 					Scanner scanner = new Scanner(line);
 					numNodes = scanner.nextInt();
@@ -70,8 +71,6 @@ public class Launcher {
 					Matcher nodeMatcher = nodePattern.matcher(line);
 					if (!nodeMatcher.find()){
 						System.out.println("No matches");
-						System.out.println(line);
-						System.out.println(lineNumber);
 						System.exit(0);
 					}
 					int nodeID = Integer.parseInt(nodeMatcher.group(1));
