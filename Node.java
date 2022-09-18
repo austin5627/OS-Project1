@@ -170,6 +170,7 @@ public class Node extends Thread {
 
         } catch (Exception e) {
             e.printStackTrace();
+            System.exit(0);
         }
     }
 
@@ -196,6 +197,7 @@ public class Node extends Thread {
             }
             catch (Exception e){
                 e.printStackTrace();
+                System.exit(0);
             }
 
         }
@@ -208,6 +210,7 @@ public class Node extends Thread {
                 wait();
             } catch (InterruptedException e) {
                 e.printStackTrace();
+                System.exit(0);
             }
         }
     }

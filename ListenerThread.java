@@ -42,6 +42,7 @@ public class ListenerThread extends Thread {
             System.out.println("Received all messages");
         } catch (Exception e) {
             e.printStackTrace();
+            System.exit(0);
         }
 
         // Threads automatically terminate after finishing run
