@@ -115,8 +115,8 @@ public class Launcher {
 			String host = nc.ip;
 			String ssh_cmd = "ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no " + netid + "@" + host +
 					" java -cp " + bindir + " " + prog;
-			run.exec(ssh_cmd);
-//			run.exec("xterm -e " + ssh_cmd + "; exec bash");
+			//run.exec(ssh_cmd);
+			run.exec("xterm -e " + ssh_cmd + "; exec bash");
 
 			System.out.println("Launched: " + nc.id);
 
