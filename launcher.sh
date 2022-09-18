@@ -2,7 +2,7 @@
 
 ./cleanup.sh
 # Change this to your netid
-export netid=ewc180001
+export netid=$(whoami)
 
 # Root directory of your project
 export PROJDIR=$HOME/cs6378/proj1/cs6378proj1
