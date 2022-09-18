@@ -19,7 +19,7 @@ cat $CONFIGLOCAL | sed -e "s/#.*//" | sed -e "/^\s*$/d" |
 (
     read i
     echo $i
-    while [[ $n -lt $(echo $i | sed "/\s.*//") ]]
+    while [[ $n -lt $(echo $i | sed "s/\s.*//") ]]
     do
     	read line
         host=$( echo $line | awk '{ print $2 }' )
