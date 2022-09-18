@@ -10,7 +10,7 @@ PROJDIR=$HOME/cs6378/proj0
 
 #
 # Directory where the config file is located on your local system
-CONFIGLOCAL=$HOME/launch/config.txt
+CONFIGLOCAL=./config.txt
 
 n=0
 
