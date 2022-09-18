@@ -117,7 +117,7 @@ public class Launcher {
 		for (NodeConfig nc : nodes) {
 			String host = nc.ip;
 			String ssh_cmd = "ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no " + netid + "@" + host +
-					" java -cp " + bindir + " " + prog + " " + localhost + " " + LAUNCHER_PORT;
+					" java -cp " + bindir + " " + prog + " " + addr.getHostName() + " " + LAUNCHER_PORT;
 			System.out.println(ssh_cmd);
 			//run.exec(ssh_cmd);
 			run.exec("xterm -e " + ssh_cmd + "; exec bash");

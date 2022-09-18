@@ -66,7 +66,7 @@ public class Node extends Thread {
         String launcherIP = args[0];
         System.out.println("Started");
         int launcherPort = Integer.parseInt(args[1]);
-        InetSocketAddress addr = new InetSocketAddress( launcherIP + ".utdallas.edu", launcherPort);
+        InetSocketAddress addr = new InetSocketAddress(launcherIP, launcherPort);
         SctpChannel sc;
         sc = SctpChannel.open(addr, 0, 0);
 
