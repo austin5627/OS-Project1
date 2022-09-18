@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
+import java.sql.SQLOutput;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Scanner;
@@ -160,6 +161,13 @@ public class Launcher {
 				if (nc.neighbors.contains(nID)){
 					System.out.println("Keeping " + nID);
 					neighborMap.append("\n").append(n);
+				}
+				else {
+					System.out.println("nID: " + nID);
+					for (int neigh : nc.neighbors){
+						System.out.println(neigh);
+					}
+
 				}
 			}
 			System.out.println(neighborMap.toString());
