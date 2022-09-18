@@ -98,7 +98,7 @@ public class Launcher {
 
 		try {
 			Runtime run = Runtime.getRuntime();
-			run.exec("xterm -e \"ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no ewc180001@dc01.utdallas.edu java -cp $BINDIR $PROG; exec bash\"");
+			run.exec("xterm -e ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no ewc180001@dc01.utdallas.edu java -cp $BINDIR $PROG; exec bash");
 		}
 		catch (IOException e){
 			e.printStackTrace();
