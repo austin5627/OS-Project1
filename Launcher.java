@@ -185,6 +185,7 @@ public class Launcher {
 			// Waiting for confirmation that the node has initialized
 			ByteBuffer buf = ByteBuffer.allocateDirect(Node.MAX_MSG_SIZE);
 			sc.receive(buf, null, null);
+			System.out.println(Message.fromByteBuffer(buf).message);
 		}
 
 		for (SctpChannel sc : channelList) {
