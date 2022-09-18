@@ -109,7 +109,7 @@ public class Launcher {
 		Runtime run = Runtime.getRuntime();
 		String bindir = System.getenv("BINDIR");
 		String prog = System.getenv("PROG");
-		String netid = System.getenv("NETID");
+		String netid = System.getenv("netid");
 		for (NodeConfig nc : nodes) {
 			String host = nc.ip;
 			String ssh_cmd = "ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no " + netid + "@" + host +
@@ -117,44 +117,45 @@ public class Launcher {
 			run.exec("xterm -e " + ssh_cmd + "; exec bash");
 
 			System.out.println("Launched: " + nc.id);
+//			continue;
 
-			SctpServerChannel ssc = SctpServerChannel.open(); //Open server channel
-			ssc.bind(addr);//Bind server channel to address
-
-			SctpChannel sc = ssc.accept();
-
-			MessageInfo messageInfo = MessageInfo.createOutgoing(null, 0); // MessageInfo for SCTP layer
-
-			// Global Parameters
-			Message msg = new Message(String.valueOf(minPerActive));
-			sc.send(msg.toByteBuffer(), messageInfo);
-			msg = new Message(String.valueOf(maxPerActive));
-			sc.send(msg.toByteBuffer(), messageInfo);
-			msg = new Message(String.valueOf(minSendDelay));
-			sc.send(msg.toByteBuffer(), messageInfo);
-			msg = new Message(String.valueOf(snapshotDelay));
-			sc.send(msg.toByteBuffer(), messageInfo);
-			msg = new Message(String.valueOf(maxNumber));
-			sc.send(msg.toByteBuffer(), messageInfo);
-
-			// Node Info
-			msg = new Message(String.valueOf(nc.id)); //Node ID
-			sc.send(msg.toByteBuffer(), messageInfo);
-			msg = new Message(String.valueOf(nc.ip)); // Node IP
-			sc.send(msg.toByteBuffer(), messageInfo);
-			msg = new Message(String.valueOf(nc.port)); // Node Port
-			sc.send(msg.toByteBuffer(), messageInfo);
-
-			// Neighbor node info
-			StringBuilder neighborMap = new StringBuilder();
-			for (String n : nodeMap.split("\n")){
-				int nID = Integer.parseInt(n.replaceAll(" .*", ""));
-				if (nc.neighbors.contains(nID)){
-					neighborMap.append("\n").append(n);
-				}
-			}
-			msg = new Message(neighborMap.toString());
-			sc.send(msg.toByteBuffer(), messageInfo);
+//			SctpServerChannel ssc = SctpServerChannel.open(); //Open server channel
+//			ssc.bind(addr);//Bind server channel to address
+//
+//			SctpChannel sc = ssc.accept();
+//
+//			MessageInfo messageInfo = MessageInfo.createOutgoing(null, 0); // MessageInfo for SCTP layer
+//
+//			// Global Parameters
+//			Message msg = new Message(String.valueOf(minPerActive));
+//			sc.send(msg.toByteBuffer(), messageInfo);
+//			msg = new Message(String.valueOf(maxPerActive));
+//			sc.send(msg.toByteBuffer(), messageInfo);
+//			msg = new Message(String.valueOf(minSendDelay));
+//			sc.send(msg.toByteBuffer(), messageInfo);
+//			msg = new Message(String.valueOf(snapshotDelay));
+//			sc.send(msg.toByteBuffer(), messageInfo);
+//			msg = new Message(String.valueOf(maxNumber));
+//			sc.send(msg.toByteBuffer(), messageInfo);
+//
+//			// Node Info
+//			msg = new Message(String.valueOf(nc.id)); //Node ID
+//			sc.send(msg.toByteBuffer(), messageInfo);
+//			msg = new Message(String.valueOf(nc.ip)); // Node IP
+//			sc.send(msg.toByteBuffer(), messageInfo);
+//			msg = new Message(String.valueOf(nc.port)); // Node Port
+//			sc.send(msg.toByteBuffer(), messageInfo);
+//
+//			// Neighbor node info
+//			StringBuilder neighborMap = new StringBuilder();
+//			for (String n : nodeMap.split("\n")){
+//				int nID = Integer.parseInt(n.replaceAll(" .*", ""));
+//				if (nc.neighbors.contains(nID)){
+//					neighborMap.append("\n").append(n);
+//				}
+//			}
+//			msg = new Message(neighborMap.toString());
+//			sc.send(msg.toByteBuffer(), messageInfo);
 		}
 	}
 }
