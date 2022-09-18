@@ -135,7 +135,7 @@ public class Node extends Thread {
 
             node = new Node(minPerActive, maxPerActive, minSendDelay, snapshotDelay, maxNumber, id, ip, port, neighborMap);
         } catch (Exception e) {
-            System.out.println(e);
+            e.printStackTrace();
         }
     }
 
@@ -145,8 +145,7 @@ public class Node extends Thread {
         try {
             Thread.sleep(5000);
         } catch (InterruptedException e) {
-            System.out.println("Exception with sleeping Node");
-            System.out.println(e);
+            e.printStackTrace();
         }
         createConnections();
 
