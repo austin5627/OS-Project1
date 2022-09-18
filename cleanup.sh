@@ -13,8 +13,8 @@ PROJDIR=$HOME/cs6378/proj0
 CONFIGLOCAL=./config.txt
 
 n=0
-read line
-cat $CONFIGLOCAL | sed -e "s/#.*//" | sed -e "/^\s*$/d" |
+
+sed -n 3,7p $CONFIGLOCAL | sed -e "s/#.*//" | sed -e "/^\s*$/d" |
 (
     read i
     echo $i
