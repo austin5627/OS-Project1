@@ -14,6 +14,7 @@ CONFIGLOCAL=./config.txt
 
 n=0
 
+
 sed -n 3,7p $CONFIGLOCAL | sed -e "s/#.*//" | sed -e "/^\s*$/d" |
 (
     read i
