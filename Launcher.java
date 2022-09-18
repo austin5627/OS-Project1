@@ -6,6 +6,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
@@ -105,8 +106,10 @@ public class Launcher {
 	}
 
 	public static void startNode(ArrayList<NodeConfig> nodes, String nodeMap, int minPerActive, int maxPerActive, int minSendDelay, int snapshotDelay, int maxNumber) throws Exception {
-		InetSocketAddress addr = new InetSocketAddress(LAUNCHER_PORT); // Get address from port number
-		System.out.println(addr.getAddress());
+		String localhost = InetAddress.getLocalHost().getHostAddress();
+		System.out.println(localhost);
+        InetSocketAddress addr = new InetSocketAddress(LAUNCHER_PORT); // Get address from port number
+
 		Runtime run = Runtime.getRuntime();
 		String bindir = System.getenv("BINDIR");
 		String prog = System.getenv("PROG");
