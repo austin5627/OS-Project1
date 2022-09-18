@@ -98,8 +98,8 @@ public class Launcher {
 
 		try {
 			Runtime run = Runtime.getRuntime();
-			run.exec("xterm -e \"ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no $netid@$host " +
-					"java -cp $BINDIR $PROG; exec bash\" &");
+			run.exec("ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no $netid@dc01.utdallas.edu " +
+					"java -cp $BINDIR $PROG; exec bash");
 		}
 		catch (IOException e){
 			e.printStackTrace();
