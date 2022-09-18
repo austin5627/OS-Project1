@@ -1,7 +1,7 @@
 #!/bin/bash
 
+./cleanup.sh
 # Change this to your netid
-if [[]]
 export netid=ewc180001
 
 # Root directory of your project
