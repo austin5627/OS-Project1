@@ -14,3 +14,6 @@ export BINDIR=$PROJDIR
 
 # Your main project class
 export PROG=Node
+
+javac Node.java Launcher.java
+java Launcher
