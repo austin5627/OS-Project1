@@ -130,13 +130,13 @@ public class Node extends Thread {
                 if (mapEntry.isEmpty()) {
                     continue;
                 }
-                System.out.println("Map Entry: " + mapEntry);
                 Scanner intScanner = new Scanner(mapEntry);
                 int neighborID = intScanner.nextInt();
                 String neighborIP = intScanner.next();
                 int neighborPort = intScanner.nextInt();
                 NodeInfo neighborInfo = new NodeInfo(neighborIP, neighborPort);
                 neighborMap.put(neighborID, neighborInfo);
+                System.out.println("Map Key: " + neighborID + "\t Map Value: " + neighborMap.get(neighborID));
             }
 
             node = new Node(minPerActive, maxPerActive, minSendDelay, snapshotDelay, maxNumber, id, ip, port, neighborMap);
