@@ -16,10 +16,12 @@ import java.util.Random;
 class NodeInfo {
     String ip;
     int port;
+    InetSocketAddress addr;
 
     public NodeInfo(String ip, int port) {
         this.ip = ip;
         this.port = port;
+        this.addr = new InetSocketAddress(ip, port);
     }
 
     @Override
@@ -187,7 +189,7 @@ public class Node extends Thread {
 
             int neighborIndex = (int)neighborMapKeys[random.nextInt(neighborMapKeys.length)];
             NodeInfo nextNeighbor = neighborMap.get(neighborIndex);
-            MessageInfo messageInfo = MessageInfo.createOutgoing(null, 0);
+            MessageInfo messageInfo = MessageInfo.createOutgoing(nextNeighbor.addr, 0);
             try {
                 channelMap.get(neighborIndex).send(msg.toByteBuffer(), messageInfo);
                 sentMessages++;
