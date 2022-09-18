@@ -63,6 +63,7 @@ public class Node extends Thread {
     }
 
     public static void main(String[] args) throws Exception {
+        System.out.println("Started");
         String launcherIP = args[0];
         int launcherPort = Integer.parseInt(args[1]);
         InetSocketAddress addr = new InetSocketAddress( launcherIP + ".utdallas.edu", launcherPort);
