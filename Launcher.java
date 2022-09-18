@@ -95,13 +95,6 @@ public class Launcher {
 			e.printStackTrace();
 			System.exit(0);
 		}
-
-		try {
-		}
-		catch (IOException e){
-			e.printStackTrace();
-			System.exit(0);
-		}
 		try {
 			startNode(nodes, nodeMap, minPerActive, maxPerActive, minSendDelay, snapshotDelay, maxNumber);
 		}
@@ -122,6 +115,8 @@ public class Launcher {
 			String ssh_cmd = "ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no " + netid + "@" + host +
 					" java -cp " + bindir + " " + prog;
 			run.exec("xterm -e " + ssh_cmd + "; exec bash");
+
+			System.out.println("Launched: " + nc.id);
 
 			SctpServerChannel ssc = SctpServerChannel.open(); //Open server channel
 			ssc.bind(addr);//Bind server channel to address
