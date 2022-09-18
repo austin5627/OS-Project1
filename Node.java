@@ -32,6 +32,7 @@ public class Node extends Thread {
     private String ip;
     private int port;
     private Map<Integer, NodeInfo> neighborMap;
+    private boolean active;
 
     private AtomicInteger numFinishedListening;
     private AtomicBoolean allConnectionsEstablished;
@@ -76,7 +77,7 @@ public class Node extends Thread {
         sc = SctpChannel.open(addr, 0, 0);
 
         receiveConfig(sc);
-        node.toString();
+        System.out.println(node.toString());
     }
 
     @Override
