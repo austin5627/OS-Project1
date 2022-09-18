@@ -162,7 +162,7 @@ public class Launcher {
 					neighborMap.append("\n").append(n);
 				}
 			}
-			System.out.println(neighborMap);
+			System.out.println(neighborMap.toString());
 			msg = new Message(neighborMap.toString());
 			sc.send(msg.toByteBuffer(), messageInfo);
 		}
