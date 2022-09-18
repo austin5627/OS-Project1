@@ -39,7 +39,6 @@ public class Launcher {
         File configFile = new File(filename);
 
 		Pattern nodePattern = Pattern.compile("(\\d+) (dc\\d+) (\\d+)");
-		Pattern neighborPattern = Pattern.compile("\\d+\\b");
 
 		int numNodes = 0, minPerActive = 0, maxPerActive = 0, minSendDelay = 0, snapshotDelay = 0, maxNumber = 0;
 		ArrayList<NodeConfig> nodes = new ArrayList<>();
@@ -81,12 +80,11 @@ public class Launcher {
 					nodeMap = sb.append(nodeID).append(" ").append(nodeHost).append(" ").append(nodePort).append("\n").toString();
 				} else if (lineNumber <= 2*numNodes) {
 					System.out.println("Finding neighbors");
-					Matcher neighborMatcher = neighborPattern.matcher(line);
 					ArrayList<Integer> neighbors = new ArrayList<>();
 					System.out.println(line);
-					System.out.println(neighborMatcher.groupCount());
-					for (int i = 1; i < neighborMatcher.groupCount(); i++) {
-						neighbors.add(Integer.parseInt(neighborMatcher.group(i)));
+					Scanner scanner = new Scanner(line);
+					while (scanner.hasNext()) {
+						neighbors.add(scanner.nextInt());
 					}
 					nodes.get(lineNumber-numNodes-1).neighbors = neighbors;
 					System.out.println("Neighbors of node " + (lineNumber-numNodes-1));
