@@ -13,4 +13,4 @@ export CONFIGLOCAL=./config.txt
 export BINDIR=$PROJDIR
 
 # Your main project class
-export PROG=Launcher
+export PROG=Node
