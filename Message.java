@@ -61,6 +61,7 @@ public class Message implements Serializable
 		bis.close();
 		ois.close();
 
+		System.out.println(msg);
 		return msg;
 	}
 
