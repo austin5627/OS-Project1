@@ -98,7 +98,7 @@ public class Launcher {
 
 		try {
 			Runtime run = Runtime.getRuntime();
-			run.exec("xterm -e \"ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no $netid@$host " +
+			run.exec("gnome-terminal -e \"ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no $netid@$host " +
 					"java -cp $BINDIR $PROG; exec bash\" &");
 		}
 		catch (IOException e){
