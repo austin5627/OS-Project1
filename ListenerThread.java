@@ -25,10 +25,9 @@ public class ListenerThread extends Thread {
         try {
 
             ByteBuffer buf = ByteBuffer.allocateDirect(Node.MAX_MSG_SIZE); // Messages are received over SCTP using ByteBuffer
-            int msgsReceived = 0;
-            int sum = 0;
             sc.configureBlocking(true); // Ensures that the channel will block until a message is received
-            while (msgsReceived < 50) {
+            boolean keepListening = true;
+            while (keepListening) {
                 // listen for msg
                 sc.receive(buf, null, null);
                 String message = Message.fromByteBuffer(buf).message;

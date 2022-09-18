@@ -1,3 +1,4 @@
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Scanner;
@@ -34,7 +35,9 @@ public class Node extends Thread {
     private String ip;
     private int port;
     private Map<Integer, NodeInfo> neighborMap;
-    private boolean active;
+    public AtomicBoolean active;
+
+    private int sentMessages;
 
     private AtomicInteger numFinishedListening;
     private AtomicBoolean allConnectionsEstablished;
@@ -207,15 +210,6 @@ public class Node extends Thread {
         }
     }
 
-    public void acceptConnections() {
-        // A node will accept connections from other nodes with a lower number
-        // A node will try to connect to nodes with a higher number
-        for (int i = 1; i < neighborMap.size(); i++) {
-            AcceptThread acceptThread = new AcceptThread(this, (port / 10) + i);
-            acceptThreadMap.put(i, acceptThread);
-            acceptThread.start();
-        }
-    }
 
     public void createConnections() {
         MessageInfo messageInfo = MessageInfo.createOutgoing(null, 0); // MessageInfo for SCTP layer
@@ -241,6 +235,40 @@ public class Node extends Thread {
                 listenerThread.start();
             }
         }
+    }
+
+    public int getPort() {
+        return port;
+    }
+
+    public String getIp() {
+        return ip;
+    }
+
+    public int getNodeId() {
+        return nodeID;
+    }
+
+    public Map<Integer, NodeInfo> getNeighborMap() {
+        return neighborMap;
+    }
+
+    public void addChannel(int connectedNode, SctpChannel sctpChannel) {
+        channelMap.put(connectedNode, sctpChannel);
+        if (channelMap.size() == neighborMap.size())
+            allConnectionsEstablished.set(true);
+    }
+
+    public SctpChannel getChannel(int i) {
+        return channelMap.get(i);
+    }
+
+    public boolean containsChannel(int i) {
+        return channelMap.containsKey(i);
+    }
+
+    public boolean getAllConnectionsEstablished(){
+        return allConnectionsEstablished.get();
     }
 
     /*
@@ -290,31 +318,4 @@ public class Node extends Thread {
     }
      */
 
-    public int getPort() {
-        return port;
-    }
-
-    public String getIp() {
-        return ip;
-    }
-
-    public int getNodeId() {
-        return nodeID;
-    }
-
-    public void addChannel(int connectedNode, SctpChannel sctpChannel) {
-        channelMap.put(connectedNode, sctpChannel);
-    }
-
-    public SctpChannel getChannel(int i) {
-        return channelMap.get(i);
-    }
-
-    public boolean containsChannel(int i) {
-        return channelMap.containsKey(i);
-    }
-
-    public void finishedListening() {
-        numFinishedListening.incrementAndGet();
-    }
 }
