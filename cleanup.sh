@@ -15,11 +15,11 @@ CONFIGLOCAL=./config.txt
 n=0
 
 
-sed -n 3,7p $CONFIGLOCAL | sed -e "s/#.*//" | sed -e "/^\s*$/d" |
+cat $CONFIGLOCAL | sed -e "s/#.*//" | sed -e "/^\s*$/d" |
 (
     read i
     echo $i
-    while [[ $n -lt $i ]]
+    while [[ $n -lt (echo i | sed "/\s.*//") ]]
     do
     	read line
         host=$( echo $line | awk '{ print $2 }' )

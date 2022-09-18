@@ -34,7 +34,7 @@ public class Launcher {
 
 	public static void main(String[] args) {
 		String filename = System.getenv("CONFIGLOCAL");
-		File configFile = new File(filename);
+        File configFile = new File(filename);
 
 		Pattern nodePattern = Pattern.compile("(\\d+) (dc\\d+) (\\d+)");
 		Pattern neighborPattern = Pattern.compile("\\d+\\b");
