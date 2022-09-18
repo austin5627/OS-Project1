@@ -149,7 +149,6 @@ public class Node extends Thread {
                 int neighborPort = intScanner.nextInt();
                 NodeInfo neighborInfo = new NodeInfo(neighborIP, neighborPort);
                 neighborMap.put(neighborID, neighborInfo);
-                System.out.println("Map Key: " + neighborID + "\t Map Value: " + neighborMap.get(neighborID).toString());
             }
 
             node = new Node(minPerActive, maxPerActive, minSendDelay, snapshotDelay, maxNumber, id, ip, port, neighborMap);
