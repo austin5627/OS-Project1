@@ -86,6 +86,10 @@ public class Launcher {
 						neighbors.add(Integer.parseInt(neighborMatcher.group(i)));
 					}
 					nodes.get(lineNumber-numNodes-1).neighbors = neighbors;
+					System.out.println("Neighbors of node " + (lineNumber-numNodes-1));
+					for (int neigh : nodes.get(lineNumber-numNodes-1).neighbors) {
+						System.out.println(neigh);
+					}
 				} else {
 					System.err.println("On line " + lineNumber + " when only " + numNodes*2 + " should exist\n" + line);
 				}
