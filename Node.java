@@ -155,14 +155,17 @@ public class Node extends Thread {
             // Let Launcher know that it is accepting connections
             AcceptThread ac = new AcceptThread(node, node.port);
             ac.start();
+            System.out.println("AC started");
             Message msg = new Message("Initialized");
             MessageInfo messageInfo = MessageInfo.createOutgoing(null, 0); // MessageInfo for SCTP layer
             sc.send(msg.toByteBuffer(), messageInfo);
+            System.out.println("Send initialized");
 
             sc.receive(buf, null, null);
             if (!Message.fromByteBuffer(buf).message.equals("Start Connections")){
                 System.err.println("Didn't receive start message");
             }
+            System.out.println("STARTING");
 
             node.startProtocol();
 

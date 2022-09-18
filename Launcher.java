@@ -181,6 +181,7 @@ public class Launcher {
 			System.out.println(neighborMap.toString());
 			msg = new Message(neighborMap.toString());
 			sc.send(msg.toByteBuffer(), messageInfo);
+			System.out.println("Sent neighbor map");
 
 			// Waiting for confirmation that the node has initialized
 			ByteBuffer buf = ByteBuffer.allocateDirect(Node.MAX_MSG_SIZE);
