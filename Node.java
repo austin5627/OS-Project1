@@ -129,7 +129,6 @@ public class Node extends Thread {
             String ip = Message.fromByteBuffer(buf).message;
             sc.receive(buf, null, null);
             int port = Message.fromByteBuffer(buf).toInt();
-            sc.receive(buf, null, null);
 
             // Neighbor node info
             sc.receive(buf, null, null);
