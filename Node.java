@@ -18,6 +18,11 @@ class NodeInfo {
         this.ip = ip;
         this.port = port;
     }
+
+    @Override
+    public String toString() {
+        return "ip: " + ip + "\tport: " + port;
+    }
 }
 
 public class Node extends Thread {
@@ -136,7 +141,7 @@ public class Node extends Thread {
                 int neighborPort = intScanner.nextInt();
                 NodeInfo neighborInfo = new NodeInfo(neighborIP, neighborPort);
                 neighborMap.put(neighborID, neighborInfo);
-                System.out.println("Map Key: " + neighborID + "\t Map Value: " + neighborMap.get(neighborID));
+                System.out.println("Map Key: " + neighborID + "\t Map Value: " + neighborMap.get(neighborID).toString());
             }
 
             node = new Node(minPerActive, maxPerActive, minSendDelay, snapshotDelay, maxNumber, id, ip, port, neighborMap);
