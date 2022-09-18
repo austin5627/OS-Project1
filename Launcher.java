@@ -80,6 +80,7 @@ public class Launcher {
 					nodes.add(new NodeConfig(nodeID, nodeHost, nodePort));
 					nodeMap = sb.append(nodeID).append(" ").append(nodeHost).append(" ").append(nodePort).append("\n").toString();
 				} else if (lineNumber <= 2*numNodes) {
+					System.out.println("Finding neighbors");
 					Matcher neighborMatcher = neighborPattern.matcher(line);
 					ArrayList<Integer> neighbors = new ArrayList<>();
 					for (int i = 1; i < neighborMatcher.groupCount(); i++) {
