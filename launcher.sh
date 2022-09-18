@@ -4,7 +4,7 @@
 export netid=ewc180001
 
 # Root directory of your project
-export PROJDIR=$HOME/cs6378/proj1
+export PROJDIR=$HOME/cs6378/proj1/cs6278proj1
 
 # Directory where the config file is located on your local system
 export CONFIGLOCAL=./config.txt
