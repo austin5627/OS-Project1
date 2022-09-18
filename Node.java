@@ -229,7 +229,7 @@ public class Node extends Thread {
                 // A node will accept connections from other nodes with a lower number
                 // A node will try to connect to nodes with a higher number
                 try {
-                    sc = SctpChannel.open(InetSocketAddress.createUnresolved(neighbor.ip, neighbor.port), 0, 0);
+                    sc = SctpChannel.open(neighbor.addr, 0, 0);
                     node.addChannel(i, sc); // Connect to server using the address
                     sc.send(msg.toByteBuffer(), messageInfo); // Messages are sent over SCTP using ByteBuffer
                     System.out.println("\t Message sent to node " + i + ": " + msg.message);
