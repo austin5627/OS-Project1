@@ -12,6 +12,7 @@ import java.nio.ByteBuffer;
 import java.sql.SQLOutput;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Scanner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -123,6 +124,7 @@ public class Launcher {
 		String bindir = System.getenv("BINDIR");
 		String prog = System.getenv("PROG");
 		String netid = System.getenv("netid");
+		List<SctpChannel> channelList = new ArrayList<>();
 		for (NodeConfig nc : nodes) {
 			String host = nc.ip;
 			String ssh_cmd = "ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no " + netid + "@" + host +
@@ -134,6 +136,7 @@ public class Launcher {
 			System.out.println("Launched: " + nc.id);
 
 			SctpChannel sc = ssc.accept();
+			channelList.add(sc);
 
 			MessageInfo messageInfo = MessageInfo.createOutgoing(null, 0); // MessageInfo for SCTP layer
 
@@ -177,6 +180,16 @@ public class Launcher {
 			}
 			System.out.println(neighborMap.toString());
 			msg = new Message(neighborMap.toString());
+			sc.send(msg.toByteBuffer(), messageInfo);
+
+			// Waiting for confirmation that the node has initialized
+			ByteBuffer buf = ByteBuffer.allocateDirect(Node.MAX_MSG_SIZE);
+			sc.receive(buf, null, null);
+		}
+
+		for (SctpChannel sc : channelList) {
+			MessageInfo messageInfo = MessageInfo.createOutgoing(null, 0); // MessageInfo for SCTP layer
+			Message msg = new Message("Start Connections");
 			sc.send(msg.toByteBuffer(), messageInfo);
 		}
 	}

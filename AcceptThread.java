@@ -3,7 +3,6 @@
  * ewc180001
  * CS 6378.001
  */
-import java.io.IOException;
 import com.sun.nio.sctp.*;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
@@ -12,8 +11,8 @@ public class AcceptThread extends Thread {
     private Node node;
     private int portNum;
 
-    public AcceptThread(Node node, int portNum) {
-        this.node = node;
+    public AcceptThread(Node ownNode, int portNum) {
+        this.ownNode = ownNode;
         this.portNum = portNum;
     }
 
@@ -40,8 +39,7 @@ public class AcceptThread extends Thread {
             }
 
         } catch (Exception e) {
-            System.out.println("IOException in AcceptThread");
-            System.out.println(e);
+            e.printStackTrace();
         }
     }
 }

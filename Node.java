@@ -2,6 +2,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Scanner;
 import java.util.concurrent.ConcurrentHashMap;
+
+import com.sun.nio.sctp.MessageInfo;
 import com.sun.nio.sctp.SctpChannel;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
@@ -66,6 +68,7 @@ public class Node extends Thread {
         this.ip = ip;
         this.port = port;
         this.neighborMap = neighborMap;
+        this.active = new AtomicBoolean(nodeID == 0);
     }
 
     public static void main(String[] args) throws Exception {
@@ -146,34 +149,62 @@ public class Node extends Thread {
             }
 
             node = new Node(minPerActive, maxPerActive, minSendDelay, snapshotDelay, maxNumber, id, ip, port, neighborMap);
+            // Let Launcher know that it is accepting connections
+            AcceptThread ac = new AcceptThread(node, node.port);
+            ac.start();
+            Message msg = new Message("Initialized");
+            MessageInfo messageInfo = MessageInfo.createOutgoing(null, 0); // MessageInfo for SCTP layer
+            sc.send(msg.toByteBuffer(), messageInfo);
+
+            sc.receive(buf, null, null);
+            if (!Message.fromByteBuffer(buf).message.equals("Start Connections")){
+                System.err.println("Didn't receive start message");
+            }
+
+            node.startProtocol();
+
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    public void initializeConnections() {
-        acceptConnections();
-        // Give all the nodes time to get ready to accept
-        try {
-            Thread.sleep(5000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
+    public void startProtocol(){
+        this.createConnections();
+        if (!active.get()) {
+            this.waitPassive();
         }
-        createConnections();
+        Message msg = new Message("Hi from Node " + nodeID);
+        Object[] neighborMapKeys = neighborMap.keySet().toArray();
+        Random random = new Random();
+        int numMsgs = random.nextInt(maxPerActive - minPerActive + 1) + minPerActive;
+        while (sentMessages < numMsgs){
 
-        // wait for all connections to be established
-        while (channelMap.size() < 7) {
+            int neighborIndex = (int)neighborMapKeys[random.nextInt(neighborMapKeys.length)];
+            NodeInfo nextNeighbor = neighborMap.get(neighborIndex);
+            MessageInfo messageInfo = MessageInfo.createOutgoing(null, 0);
             try {
-                synchronized(this) {
-                    wait();
-                }
+                channelMap.get(neighborIndex).send(msg.toByteBuffer(), messageInfo);
+                sentMessages++;
+
+                // Wait minSendDelay to send next message
+                wait(minSendDelay);
+            }
+            catch (Exception e){
+                e.printStackTrace();
+            }
+
+        }
+
+    }
+
+    public void waitPassive() {
+        synchronized (this){
+            try {
+                wait();
             } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-                System.out.println("Failed to wait");
+                e.printStackTrace();
             }
         }
-
-        System.out.println("Fully connected");
     }
 
     public void acceptConnections() {
@@ -187,10 +218,25 @@ public class Node extends Thread {
     }
 
     public void createConnections() {
-        // FIXME: This should be changed
-        for (int i = nodeID + 1; i <= 8; i++) {
-            if (i != nodeID) {
-                ListenerThread listenerThread = new ListenerThread(this, i);
+        MessageInfo messageInfo = MessageInfo.createOutgoing(null, 0); // MessageInfo for SCTP layer
+        Message msg = new Message(String.valueOf(node.getNodeId()));
+
+        for (int i : neighborMap.keySet()) {
+            if (i < nodeID) {
+                NodeInfo neighbor = neighborMap.get(i);
+                SctpChannel sc;
+                // A node will accept connections from other nodes with a lower number
+                // A node will try to connect to nodes with a higher number
+                try {
+                    sc = SctpChannel.open(InetSocketAddress.createUnresolved(neighbor.ip, neighbor.port), 0, 0);
+                    node.addChannel(i, sc); // Connect to server using the address
+                    sc.send(msg.toByteBuffer(), messageInfo); // Messages are sent over SCTP using ByteBuffer
+                    System.out.println("\t Message sent to node " + i + ": " + msg.message);
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
+
+                ListenerThread listenerThread = new ListenerThread(node, sc, i);
                 listenerThreadMap.put(i, listenerThread);
                 listenerThread.start();
             }
