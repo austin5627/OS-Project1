@@ -126,6 +126,7 @@ public class Node extends Thread {
             Scanner scanner = new Scanner(nodesInfoString);
             Map<Integer, NodeInfo> neighborMap = new HashMap<>();
             while(!(mapEntry = scanner.nextLine()).isEmpty()) {
+                System.out.println("Map Entry: " + mapEntry);
                 Scanner intScanner = new Scanner(mapEntry);
                 int neighborID = intScanner.nextInt();
                 String neighborIP = intScanner.next();
