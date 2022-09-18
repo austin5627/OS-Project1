@@ -110,6 +110,9 @@ public class Launcher {
 		System.out.println(localhost);
         InetSocketAddress addr = new InetSocketAddress(LAUNCHER_PORT); // Get address from port number
 
+		SctpServerChannel ssc = SctpServerChannel.open(); //Open server channel
+		ssc.bind(addr);//Bind server channel to address
+
 		Runtime run = Runtime.getRuntime();
 		String bindir = System.getenv("BINDIR");
 		String prog = System.getenv("PROG");
@@ -123,9 +126,6 @@ public class Launcher {
 			run.exec("xterm -e " + ssh_cmd + "; exec bash");
 
 			System.out.println("Launched: " + nc.id);
-
-			SctpServerChannel ssc = SctpServerChannel.open(); //Open server channel
-			ssc.bind(addr);//Bind server channel to address
 
 			SctpChannel sc = ssc.accept();
 
