@@ -22,7 +22,7 @@ class NodeConfig {
 
 	public NodeConfig(int id, String ip, int port) {
 		this.id = id;
-		this.ip = ip;
+		this.ip = ip + ".utdallas.edu";
 		this.port = port;
 	}
 }
@@ -97,11 +97,6 @@ public class Launcher {
 		}
 
 		try {
-			Runtime run = Runtime.getRuntime();
-			String bindir = System.getenv("BINDIR");
-			String prog = System.getenv("PROG");
-			run.exec("xterm -e ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no ewc180001@dc01.utdallas.edu" +
-					" java -cp " + bindir + " " + prog + "; exec bash");
 		}
 		catch (IOException e){
 			e.printStackTrace();
@@ -118,7 +113,16 @@ public class Launcher {
 
 	public static void startNode(ArrayList<NodeConfig> nodes, String nodeMap, int minPerActive, int maxPerActive, int minSendDelay, int snapshotDelay, int maxNumber) throws Exception {
 		InetSocketAddress addr = new InetSocketAddress(LAUNCHER_PORT); // Get address from port number
+		Runtime run = Runtime.getRuntime();
+		String bindir = System.getenv("BINDIR");
+		String prog = System.getenv("PROG");
+		String netid = System.getenv("NETID");
 		for (NodeConfig nc : nodes) {
+			String host = nc.ip;
+			String ssh_cmd = "ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no " + netid + "@" + host +
+					" java -cp " + bindir + " " + prog;
+			run.exec("xterm -e " + ssh_cmd + "; exec bash");
+
 			SctpServerChannel ssc = SctpServerChannel.open(); //Open server channel
 			ssc.bind(addr);//Bind server channel to address
 
