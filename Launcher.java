@@ -83,6 +83,8 @@ public class Launcher {
 					System.out.println("Finding neighbors");
 					Matcher neighborMatcher = neighborPattern.matcher(line);
 					ArrayList<Integer> neighbors = new ArrayList<>();
+					System.out.println(line);
+					System.out.println(neighborMatcher.groupCount());
 					for (int i = 1; i < neighborMatcher.groupCount(); i++) {
 						neighbors.add(Integer.parseInt(neighborMatcher.group(i)));
 					}
