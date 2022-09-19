@@ -175,8 +175,8 @@ public class Node extends Thread {
             MessageInfo messageInfo = MessageInfo.createOutgoing(null, 0);
             try {
                 SctpChannel channel = channelMap.get(neighborIndex);
-                ByteBuffer buf = msg.toByteBuffer();
-                channel.send(buf, messageInfo);
+                System.out.println(channel);
+                channel.send(msg.toByteBuffer(), messageInfo);
                 sentMessages++;
 
                 // Wait minSendDelay to send next message
