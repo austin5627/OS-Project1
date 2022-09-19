@@ -232,13 +232,14 @@ public class Node extends Thread {
                     node.addChannel(i, sc); // Connect to server using the address
                     sc.send(msg.toByteBuffer(), messageInfo); // Messages are sent over SCTP using ByteBuffer
                     System.out.println("\t Message sent to node " + i + ": " + msg.message);
+                    ListenerThread listenerThread = new ListenerThread(node, sc, i);
+                    listenerThreadMap.put(i, listenerThread);
+                    listenerThread.start();
                 } catch (Exception e) {
-                    throw new RuntimeException(e);
+                    e.printStackTrace();
+                    System.exit(0);
                 }
 
-                ListenerThread listenerThread = new ListenerThread(node, sc, i);
-                listenerThreadMap.put(i, listenerThread);
-                listenerThread.start();
             }
         }
     }
