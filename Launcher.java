@@ -154,11 +154,9 @@ public class Launcher {
 			sc.send(msg.toByteBuffer(), messageInfo);
 
 			// Neighbor node info
-			System.out.println(nodeMap);
 			StringBuilder neighborMap = new StringBuilder();
 			for (String n : nodeMap.split("\n")){
 				int nID = Integer.parseInt(n.replaceAll(" .*", ""));
-				System.out.println(nID  + " /// " + n);
 				if (nc.neighbors.contains(nID)){
 					neighborMap.append("\n").append(n);
 				}

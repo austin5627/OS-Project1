@@ -175,6 +175,7 @@ public class Node extends Thread {
             MessageInfo messageInfo = MessageInfo.createOutgoing(null, 0);
             try {
                 SctpChannel channel = channelMap.get(neighborIndex);
+                System.out.println(channelMap);
                 System.out.println(channel);
                 channel.send(msg.toByteBuffer(), messageInfo);
                 sentMessages++;
@@ -204,7 +205,7 @@ public class Node extends Thread {
 
 
     public void createConnections() {
-        Message msg = new Message(String.valueOf(node.getNodeId()));
+        Message msg = new Message(String.valueOf(this.getNodeId()));
 
         for (int i : neighborMap.keySet()) {
             if (i < nodeID) {
@@ -214,11 +215,11 @@ public class Node extends Thread {
                 // A node will try to connect to nodes with a higher number
                 try {
                     sc = SctpChannel.open(neighbor.addr, 0, 0);
-                    node.addChannel(i, sc); // Connect to server using the address
+                    this.addChannel(i, sc); // Connect to server using the address
                     MessageInfo messageInfo = MessageInfo.createOutgoing(null, 0); // MessageInfo for SCTP layer
                     sc.send(msg.toByteBuffer(), messageInfo); // Messages are sent over SCTP using ByteBuffer
                     System.out.println("\t Message sent to node " + i + ": " + msg.message);
-                    ListenerThread listenerThread = new ListenerThread(node, sc, i);
+                    ListenerThread listenerThread = new ListenerThread(this, sc, i);
                     listenerThread.start();
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -246,6 +247,7 @@ public class Node extends Thread {
     }
 
     public void addChannel(int connectedNode, SctpChannel sctpChannel) {
+        System.out.println("Adding connection to " + connectedNode);
         channelMap.put(connectedNode, sctpChannel);
         if (channelMap.size() == neighborMap.size())
             allConnectionsEstablished.set(true);
