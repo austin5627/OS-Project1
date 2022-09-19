@@ -149,7 +149,7 @@ public class Node extends Thread {
             if (!Message.fromByteBuffer(buf).message.equals("Start Connections")){
                 System.err.println("Didn't receive start message");
             }
-            System.out.println("STARTING");
+            System.out.println("STARTING NODE " + node.nodeID);
 
             node.startProtocol();
 
