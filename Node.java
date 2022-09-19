@@ -161,6 +161,14 @@ public class Node extends Thread {
 
     public void startProtocol(){
         this.createConnections();
+        while (!allConnectionsEstablished.get()){
+            try {
+                wait();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+                System.exit(0);
+            }
+        }
         if (!active.get()) {
             this.waitPassive();
         }
@@ -249,8 +257,10 @@ public class Node extends Thread {
     public void addChannel(int connectedNode, SctpChannel sctpChannel) {
         System.out.println("Adding connection to " + connectedNode);
         channelMap.put(connectedNode, sctpChannel);
-        if (channelMap.size() == neighborMap.size())
+        if (channelMap.size() == neighborMap.size()) {
             allConnectionsEstablished.set(true);
+            this.notify();
+        }
     }
 
     public SctpChannel getChannel(int i) {
