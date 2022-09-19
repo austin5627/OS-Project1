@@ -41,26 +41,12 @@ public class Node extends Thread {
 
     private int sentMessages;
 
-    private AtomicInteger numFinishedListening;
-    private AtomicBoolean allConnectionsEstablished;
-    private ConcurrentHashMap<Integer, SctpChannel> channelMap;
-    private ConcurrentHashMap<Integer, AcceptThread> acceptThreadMap;
-    private ConcurrentHashMap<Integer, ListenerThread> listenerThreadMap;
+    private final AtomicInteger numFinishedListening = new AtomicInteger(0);
+    private final AtomicBoolean allConnectionsEstablished = new AtomicBoolean(false);
+    private final ConcurrentHashMap<Integer, SctpChannel> channelMap = new ConcurrentHashMap<>();
 
     public static final int MAX_MSG_SIZE = 4096;
 
-
-
-    public Node() {
-        numFinishedListening = new AtomicInteger(0);
-        allConnectionsEstablished = new AtomicBoolean(false);
-
-        // The "dcXX" servers start at dc01, so adding one makes
-        // the node number the same as the machine number
-        channelMap = new ConcurrentHashMap<>();
-        acceptThreadMap = new ConcurrentHashMap<>();
-        listenerThreadMap = new ConcurrentHashMap<>();
-    }
 
     public Node(int minPerActive, int maxPerActive, int minSendDelay, int snapShotDelay, int maxNumber, int nodeID,
                 String ip, int port, Map<Integer, NodeInfo> neighborMap) {
@@ -73,7 +59,6 @@ public class Node extends Thread {
         this.ip = ip;
         this.port = port;
         this.neighborMap = neighborMap;
-        this.active = new AtomicBoolean(nodeID == 0);
     }
 
     public static void main(String[] args) throws Exception {
@@ -103,8 +88,6 @@ public class Node extends Thread {
                 ",\nnumFinishedListening=" + numFinishedListening +
                 ",\nallConnectionsEstablished=" + allConnectionsEstablished +
                 ",\nchannelMap=" + channelMap +
-                ",\nacceptThreadMap=" + acceptThreadMap +
-                ",\nlistenerThreadMap=" + listenerThreadMap +
                 "\n}";
     }
 
@@ -233,7 +216,6 @@ public class Node extends Thread {
                     sc.send(msg.toByteBuffer(), messageInfo); // Messages are sent over SCTP using ByteBuffer
                     System.out.println("\t Message sent to node " + i + ": " + msg.message);
                     ListenerThread listenerThread = new ListenerThread(node, sc, i);
-                    listenerThreadMap.put(i, listenerThread);
                     listenerThread.start();
                 } catch (Exception e) {
                     e.printStackTrace();
