@@ -1,4 +1,3 @@
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Scanner;
@@ -162,15 +161,10 @@ public class Node extends Thread {
     public void startProtocol(){
         this.createConnections();
         while (!allConnectionsEstablished.get()){
-            try {
-                wait();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-                System.exit(0);
-            }
+            this.waitSynchronized();
         }
         if (!active.get()) {
-            this.waitPassive();
+            this.waitSynchronized();
         }
         Message msg = new Message("Hi from Node " + nodeID);
         Object[] neighborMapKeys = neighborMap.keySet().toArray();
@@ -189,7 +183,7 @@ public class Node extends Thread {
                 sentMessages++;
 
                 // Wait minSendDelay to send next message
-                wait(minSendDelay);
+                waitSynchronized(minSendDelay);
             }
             catch (Exception e){
                 e.printStackTrace();
@@ -200,10 +194,21 @@ public class Node extends Thread {
 
     }
 
-    public void waitPassive() {
+    public void waitSynchronized() {
         synchronized (this){
             try {
                 wait();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+                System.exit(0);
+            }
+        }
+    }
+
+    public void waitSynchronized(int minSendDelay) {
+        synchronized (this){
+            try {
+                wait(minSendDelay);
             } catch (InterruptedException e) {
                 e.printStackTrace();
                 System.exit(0);
@@ -259,7 +264,9 @@ public class Node extends Thread {
         channelMap.put(connectedNode, sctpChannel);
         if (channelMap.size() == neighborMap.size()) {
             allConnectionsEstablished.set(true);
-            this.notify();
+            synchronized (this){
+                this.notify();
+            }
         }
     }
 
