@@ -59,6 +59,7 @@ public class Node extends Thread {
         this.ip = ip;
         this.port = port;
         this.neighborMap = neighborMap;
+        this.active = new AtomicBoolean(nodeID == 0);
     }
 
     public static void main(String[] args) throws Exception {
