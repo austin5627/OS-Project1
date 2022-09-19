@@ -80,25 +80,18 @@ public class Launcher {
 					nodes.add(new NodeConfig(nodeID, nodeHost, nodePort));
 					nodeMap = sb.append(nodeID).append(" ").append(nodeHost).append(" ").append(nodePort).append("\n").toString();
 				} else if (lineNumber <= 2*numNodes) {
-					System.out.println("Finding neighbors");
 					ArrayList<Integer> neighbors = new ArrayList<>();
-					System.out.println(line);
 					Scanner scanner = new Scanner(line);
 					while (scanner.hasNext()) {
 						neighbors.add(scanner.nextInt());
 					}
 					nodes.get(lineNumber-numNodes-1).neighbors = neighbors;
-					System.out.println("Neighbors of node " + (lineNumber-numNodes-1));
-					for (int neigh : nodes.get(lineNumber-numNodes-1).neighbors) {
-						System.out.println(neigh);
-					}
 				} else {
 					System.err.println("On line " + lineNumber + " when only " + numNodes*2 + " should exist\n" + line);
 				}
 			}
 			br.close();
 		} catch (IOException e) {
-			System.out.println(configFile.getPath());
 			System.out.println("Couldn't read from file");
 			e.printStackTrace();
 			System.exit(0);
@@ -167,21 +160,11 @@ public class Launcher {
 				int nID = Integer.parseInt(n.replaceAll(" .*", ""));
 				System.out.println(nID  + " /// " + n);
 				if (nc.neighbors.contains(nID)){
-					System.out.println("Keeping " + nID);
 					neighborMap.append("\n").append(n);
 				}
-				else {
-					System.out.println("nID: " + nID);
-					for (int neigh : nc.neighbors){
-						System.out.println(neigh);
-					}
-
-				}
 			}
-			System.out.println(neighborMap.toString());
 			msg = new Message(neighborMap.toString());
 			sc.send(msg.toByteBuffer(), messageInfo);
-			System.out.println("Sent neighbor map");
 
 			// Waiting for confirmation that the node has initialized
 			ByteBuffer buf = ByteBuffer.allocateDirect(Node.MAX_MSG_SIZE);

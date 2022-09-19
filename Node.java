@@ -172,8 +172,11 @@ public class Node extends Thread {
 
             int neighborIndex = (int)neighborMapKeys[random.nextInt(neighborMapKeys.length)];
             NodeInfo nextNeighbor = neighborMap.get(neighborIndex);
-            MessageInfo messageInfo = MessageInfo.createOutgoing(nextNeighbor.addr, 0);
+            MessageInfo messageInfo = MessageInfo.createOutgoing(null, 0);
             try {
+                System.out.println(neighborIndex);
+                System.out.println(messageInfo);
+                System.out.println(channelMap);
                 channelMap.get(neighborIndex).send(msg.toByteBuffer(), messageInfo);
                 sentMessages++;
 
@@ -202,7 +205,6 @@ public class Node extends Thread {
 
 
     public void createConnections() {
-        MessageInfo messageInfo = MessageInfo.createOutgoing(null, 0); // MessageInfo for SCTP layer
         Message msg = new Message(String.valueOf(node.getNodeId()));
 
         for (int i : neighborMap.keySet()) {
@@ -214,6 +216,7 @@ public class Node extends Thread {
                 try {
                     sc = SctpChannel.open(neighbor.addr, 0, 0);
                     node.addChannel(i, sc); // Connect to server using the address
+                    MessageInfo messageInfo = MessageInfo.createOutgoing(null, 0); // MessageInfo for SCTP layer
                     sc.send(msg.toByteBuffer(), messageInfo); // Messages are sent over SCTP using ByteBuffer
                     System.out.println("\t Message sent to node " + i + ": " + msg.message);
                     ListenerThread listenerThread = new ListenerThread(node, sc, i);
