@@ -160,31 +160,33 @@ public class Node extends Thread {
 
     public void startProtocol(){
         this.createConnections();
-        while (!allConnectionsEstablished.get() || !active.get() ){
-            this.waitSynchronized();
-        }
-        Message msg = new Message("Hi from Node " + nodeID);
-        Object[] neighborMapKeys = neighborMap.keySet().toArray();
-        Random random = new Random();
-        int numMsgs = random.nextInt(maxPerActive - minPerActive + 1) + minPerActive;
-        while (sentMessages < numMsgs){
-
-            int neighborIndex = (int)neighborMapKeys[random.nextInt(neighborMapKeys.length)];
-            NodeInfo nextNeighbor = neighborMap.get(neighborIndex);
-            MessageInfo messageInfo = MessageInfo.createOutgoing(null, 0);
-            try {
-                SctpChannel channel = channelMap.get(neighborIndex);
-                channel.send(msg.toByteBuffer(), messageInfo);
-                sentMessages++;
-
-                // Wait minSendDelay to send next message
-                waitSynchronized(minSendDelay);
+        while (sentMessages < maxNumber) {
+            while (!allConnectionsEstablished.get() || !active.get()) {
+                this.waitSynchronized();
             }
-            catch (Exception e){
-                e.printStackTrace();
-                System.exit(0);
-            }
+            Message msg = new Message("Hi from Node " + nodeID);
+            Object[] neighborMapKeys = neighborMap.keySet().toArray();
+            Random random = new Random();
+            int numMsgs = random.nextInt(maxPerActive - minPerActive + 1) + minPerActive;
+            while (sentMessages < numMsgs) {
 
+                int neighborIndex = (int) neighborMapKeys[random.nextInt(neighborMapKeys.length)];
+                NodeInfo nextNeighbor = neighborMap.get(neighborIndex);
+                MessageInfo messageInfo = MessageInfo.createOutgoing(null, 0);
+                try {
+                    SctpChannel channel = channelMap.get(neighborIndex);
+                    channel.send(msg.toByteBuffer(), messageInfo);
+                    sentMessages++;
+
+                    // Wait minSendDelay to send next message
+                    waitSynchronized(minSendDelay);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    System.exit(0);
+                }
+
+            }
+            active.set(false);
         }
 
     }
