@@ -155,6 +155,7 @@ public class Launcher {
 
 			// Neighbor node info
 			StringBuilder neighborMap = new StringBuilder();
+			System.out.println(nodeMap);
 			for (String n : nodeMap.split("\n")){
 				int nID = Integer.parseInt(n.replaceAll(" .*", ""));
 				if (nc.neighbors.contains(nID)){
