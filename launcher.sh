@@ -2,14 +2,10 @@
 
 ./cleanup.sh
 # Change this to your netid
-export netid=$(whoami)
+export netid=ewc180001
 
 # Root directory of your project
-if [[ $netid == ash170000 ]]; then
-    export PROJDIR=$HOME/CS-6378/cs6378proj1
-else
-    export PROJDIR=$HOME/cs6378/proj1/cs6378proj1
-fi
+export PROJDIR=$HOME/cs6378/proj1/cs6378proj1
 
 # Directory where the config file is located on your local system
 export CONFIGLOCAL=./config.txt

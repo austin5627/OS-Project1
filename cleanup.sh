@@ -2,7 +2,7 @@
 
 
 # Change this to your netid
-netid=$(whoami)
+netid=ewc180001
 
 #
 # Root directory of your project

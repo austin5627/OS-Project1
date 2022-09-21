@@ -160,10 +160,7 @@ public class Node extends Thread {
 
     public void startProtocol(){
         this.createConnections();
-        while (!allConnectionsEstablished.get()){
-            this.waitSynchronized();
-        }
-        if (!active.get()) {
+        while (!allConnectionsEstablished.get() || !active.get() ){
             this.waitSynchronized();
         }
         Message msg = new Message("Hi from Node " + nodeID);
@@ -177,8 +174,6 @@ public class Node extends Thread {
             MessageInfo messageInfo = MessageInfo.createOutgoing(null, 0);
             try {
                 SctpChannel channel = channelMap.get(neighborIndex);
-                System.out.println(channelMap);
-                System.out.println(channel);
                 channel.send(msg.toByteBuffer(), messageInfo);
                 sentMessages++;
 
