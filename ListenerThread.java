@@ -31,6 +31,7 @@ public class ListenerThread extends Thread {
                 // listen for msg
                 sc.receive(buf, null, null);
                 String message = Message.fromByteBuffer(buf).message;
+                System.out.println("Recieved: " + message);
                 if (!ownNode.active.getAndSet(true)){
                     notifyNode();
                 }
