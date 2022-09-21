@@ -149,6 +149,7 @@ public class Node extends Thread {
                 System.err.println("Didn't receive start message");
             }
             System.out.println("STARTING NODE " + node.nodeID);
+            System.out.println("Expected Neighbors: " + node.neighborMap.values());
 
             node.startProtocol();
 
@@ -164,6 +165,7 @@ public class Node extends Thread {
             while (!allConnectionsEstablished.get() || !active.get()) {
                 this.waitSynchronized();
             }
+            System.out.println("All Connections Established");
             Message msg = new Message("Hi from Node " + nodeID);
             Object[] neighborMapKeys = neighborMap.keySet().toArray();
             Random random = new Random();
