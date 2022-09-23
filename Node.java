@@ -172,7 +172,6 @@ public class Node extends Thread {
                 try {
                     SctpChannel channel = channelMap.get(neighborIndex);
                     syncSend(channel, "Hi from node " + nodeID);
-                    System.out.println("Sent message to " + neighborIndex);
                     sentMessages++;
 
                     // Wait minSendDelay to send next message
@@ -234,7 +233,6 @@ public class Node extends Thread {
                     MessageInfo messageInfo = MessageInfo.createOutgoing(null, 0); // MessageInfo for SCTP layer
                     String msg_content = "Hi from Node " + nodeID;
                     syncSend(sc, msg_content);
-                    System.out.println("\t Message sent to node " + i + ": " + msg_content + " Vector Clock: " + node.vectClock.toString());
                     ListenerThread listenerThread = new ListenerThread(this, sc, i);
                     listenerThread.start();
                 } catch (Exception e) {
@@ -335,6 +333,8 @@ public class Node extends Thread {
                 syncIncr();
                 Message msg = new Message(nodeID, MessageType.application, message_content, vectClock);
                 msg.send(sc);
+                System.out.println("\t" + message_content + " Vector Clock: " + node.vectClock.toString());
+
             }
         }
     }
