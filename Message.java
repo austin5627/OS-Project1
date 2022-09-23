@@ -7,7 +7,9 @@ import java.io.ObjectOutputStream;
 import java.io.ObjectInputStream;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 // Enumeration to store message types
 enum MessageType{string, control, launcher}
@@ -16,20 +18,21 @@ enum MessageType{string, control, launcher}
 // Message class can be modified to incoroporate all fields than need to be passed
 // Message needs to be serializable
 // Most base classes and arrays are serializable
-public class Message implements Serializable 
+public class Message implements Serializable
 {
 	MessageType msgType;
-	public Object message;
-	List<Integer> vectorClock;
+	public Serializable message;
+	int[] vectorClock;
 	// Constructor
-	public Message(MessageType msgType, Object msg, List<Integer> vectorClock)
+	public Message(MessageType msgType, Serializable msg, List<Integer> vectorClock)
 	{
 		this.msgType = msgType;
 		this.message = msg;
-		this.vectorClock = vectorClock;
+		this.vectorClock = vectorClock.stream().mapToInt(Integer::intValue).toArray();
 	}
 
-	public Message(Object msg){
+
+	public Message(Serializable msg){
 		this.msgType = MessageType.launcher;
 		this.message = msg;
 		this.vectorClock = null;

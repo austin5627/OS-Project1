@@ -6,6 +6,7 @@
 import com.sun.nio.sctp.*;
 
 import java.nio.ByteBuffer;
+import java.util.Arrays;
 import java.util.List;
 
 public class ListenerThread extends Thread {
@@ -36,13 +37,13 @@ public class ListenerThread extends Thread {
                     }
 
                 } else {
-                    List<Integer> msgVectClock = message.vectorClock;
+                    int[] msgVectClock = message.vectorClock;
+                    System.out.println("Received: " + message + " with vector clock: " + Arrays.toString(msgVectClock));
                     ownNode.syncSet(msgVectClock);
                     if (!ownNode.active.getAndSet(true)){
                         notifyNode();
                     }
                 }
-                System.out.println("Received: " + message);
 
             }
             System.out.println("Received all messages");

@@ -26,9 +26,7 @@ public class AcceptThread extends Thread {
             while (acceptNew) {
                 SctpChannel sc = ssc.accept();
                 // Should get a message immediately from client with the nodeNum of the remote device
-                ByteBuffer buf = ByteBuffer.allocateDirect(Node.MAX_MSG_SIZE);
-                sc.receive(buf, null, null); // Messages are received over SCTP using ByteBuffer
-                String msg = Message.fromByteBuffer(buf).message;
+                String msg = (String) Message.receiveMessage(sc).message;
                 System.out.println("Message received from node: " + msg);
 
                 // parse int from the message

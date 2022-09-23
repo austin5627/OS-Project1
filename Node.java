@@ -235,7 +235,7 @@ public class Node extends Thread {
                     MessageInfo messageInfo = MessageInfo.createOutgoing(null, 0); // MessageInfo for SCTP layer
                     String msg_content = "Hi from Node " + nodeID;
                     syncSend(sc, msg_content);
-                    System.out.println("\t Message sent to node " + i + ": " + msg_content);
+                    System.out.println("\t Message sent to node " + i + ": " + msg_content + " Vector Clock: " + node.vectClock.toString());
                     ListenerThread listenerThread = new ListenerThread(this, sc, i);
                     listenerThread.start();
                 } catch (Exception e) {
