@@ -3,10 +3,10 @@
  * ewc180001
  * CS 6378.001
  */
-import java.io.IOException;
 import com.sun.nio.sctp.*;
-import java.net.InetSocketAddress;
+
 import java.nio.ByteBuffer;
+import java.util.List;
 
 public class ListenerThread extends Thread {
     private SctpChannel sc;
@@ -29,16 +29,21 @@ public class ListenerThread extends Thread {
             boolean keepListening = true;
             while (keepListening) {
                 // listen for msg
-                sc.receive(buf, null, null);
-                String message = Message.fromByteBuffer(buf).message;
-                System.out.println("Recieved: " + message);
-                if (!ownNode.active.getAndSet(true)){
-                    notifyNode();
-                }
+                Message message = Message.receiveMessage(sc);
+                if (message.msgType == MessageType.control) {
+                    if (message.message.equals("TERMINATE")){
+                        keepListening = false;
+                    }
 
-                if (message.equals("TERMINATE")){
-                    keepListening = false;
+                } else {
+                    List<Integer> msgVectClock = message.vectorClock;
+                    ownNode.syncSet(msgVectClock);
+                    if (!ownNode.active.getAndSet(true)){
+                        notifyNode();
+                    }
                 }
+                System.out.println("Received: " + message);
+
             }
             System.out.println("Received all messages");
         } catch (Exception e) {

@@ -134,24 +134,27 @@ public class Launcher {
 			MessageInfo messageInfo = MessageInfo.createOutgoing(null, 0); // MessageInfo for SCTP layer
 
 			// Global Parameters
-			Message msg = new Message(String.valueOf(minPerActive));
-			sc.send(msg.toByteBuffer(), messageInfo);
-			msg = new Message(String.valueOf(maxPerActive));
-			sc.send(msg.toByteBuffer(), messageInfo);
-			msg = new Message(String.valueOf(minSendDelay));
-			sc.send(msg.toByteBuffer(), messageInfo);
-			msg = new Message(String.valueOf(snapshotDelay));
-			sc.send(msg.toByteBuffer(), messageInfo);
-			msg = new Message(String.valueOf(maxNumber));
-			sc.send(msg.toByteBuffer(), messageInfo);
+			Message msg = new Message(minPerActive);
+			msg.send(sc);
+			msg = new Message(maxPerActive);
+			msg.send(sc);
+			msg = new Message(minSendDelay);
+			msg.send(sc);
+			msg = new Message(snapshotDelay);
+			msg.send(sc);
+			msg = new Message(maxNumber);
+			msg.send(sc);
 
 			// Node Info
-			msg = new Message(String.valueOf(nc.id)); //Node ID
-			sc.send(msg.toByteBuffer(), messageInfo);
-			msg = new Message(String.valueOf(nc.ip)); // Node IP
-			sc.send(msg.toByteBuffer(), messageInfo);
-			msg = new Message(String.valueOf(nc.port)); // Node Port
-			sc.send(msg.toByteBuffer(), messageInfo);
+			msg = new Message(nc.id); //Node ID
+			msg.send(sc);
+			msg = new Message(nc.ip); // Node IP
+			msg.send(sc);
+			msg = new Message(nc.port); // Node Port
+			msg.send(sc);
+
+			msg = new Message(nodes.size()); // Number of nodes
+			msg.send(sc);
 
 			// Neighbor node info
 			StringBuilder neighborMap = new StringBuilder();
@@ -162,7 +165,7 @@ public class Launcher {
 				}
 			}
 			msg = new Message(neighborMap.toString());
-			sc.send(msg.toByteBuffer(), messageInfo);
+			msg.send(sc);
 
 			// Waiting for confirmation that the node has initialized
 			ByteBuffer buf = ByteBuffer.allocateDirect(Node.MAX_MSG_SIZE);
@@ -171,9 +174,8 @@ public class Launcher {
 		}
 
 		for (SctpChannel sc : channelList) {
-			MessageInfo messageInfo = MessageInfo.createOutgoing(null, 0); // MessageInfo for SCTP layer
 			Message msg = new Message("Start Connections");
-			sc.send(msg.toByteBuffer(), messageInfo);
+			msg.send(sc);
 		}
 	}
 }

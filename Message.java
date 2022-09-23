@@ -1,12 +1,16 @@
+import com.sun.nio.sctp.MessageInfo;
+import com.sun.nio.sctp.SctpChannel;
+
 import java.io.Serializable;
 import java.nio.ByteBuffer;
 import java.io.ObjectOutputStream;
 import java.io.ObjectInputStream;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.util.List;
 
 // Enumeration to store message types
-enum MessageType{string}
+enum MessageType{string, control, launcher}
 
 // Object to store message passing between nodes
 // Message class can be modified to incoroporate all fields than need to be passed
@@ -15,14 +19,22 @@ enum MessageType{string}
 public class Message implements Serializable 
 {
 	MessageType msgType;
-	public String message;
-
+	public Object message;
+	List<Integer> vectorClock;
 	// Constructor
-	public Message(String msg)
+	public Message(MessageType msgType, Object msg, List<Integer> vectorClock)
 	{
-		msgType = MessageType.string;
-		message = msg;
+		this.msgType = msgType;
+		this.message = msg;
+		this.vectorClock = vectorClock;
 	}
+
+	public Message(Object msg){
+		this.msgType = MessageType.launcher;
+		this.message = msg;
+		this.vectorClock = null;
+	}
+
 
 	// Convert current instance of Message to ByteBuffer in order to send message over SCTP
 	public ByteBuffer toByteBuffer() throws Exception
@@ -42,6 +54,16 @@ public class Message implements Serializable
 		// Buffer flip should happen only once		
 		buf.flip();
 		return buf;
+	}
+
+	public void send(SctpChannel sc){
+		try{
+			ByteBuffer buf = this.toByteBuffer();
+			MessageInfo messageInfo = MessageInfo.createOutgoing(null, 0);
+			sc.send(buf, messageInfo);
+		} catch (Exception e){
+			e.printStackTrace();
+		}
 	}
 
 	// Retrieve Message from ByteBuffer received from SCTP
@@ -64,8 +86,15 @@ public class Message implements Serializable
 		return msg;
 	}
 
-	public int toInt() {
-		return Integer.parseInt(message);
+	public static Message receiveMessage(SctpChannel channel) {
+		try {
+			ByteBuffer buf = ByteBuffer.allocateDirect(Node.MAX_MSG_SIZE);
+			MessageInfo messageInfo = channel.receive(buf, null, null);
+			return Message.fromByteBuffer(buf);
+		} catch (Exception e) {
+			e.printStackTrace();
+			System.exit(0);
+		}
+		return null;
 	}
-
 }

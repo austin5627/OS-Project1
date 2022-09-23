@@ -28,11 +28,13 @@ class NodeInfo {
 
 public class Node extends Thread {
     private static Node node;
-    private int minPerActive, maxPerActive, minSendDelay, snapShotDelay, maxNumber;
-    private int nodeID;
-    private String ip;
-    private int port;
-    private Map<Integer, NodeInfo> neighborMap;
+    private final int minPerActive, maxPerActive, minSendDelay, snapShotDelay, maxNumber;
+    private final int nodeID;
+    private final String ip;
+    private final int port;
+    private final Map<Integer, NodeInfo> neighborMap;
+
+    private final int numNodes;
     public AtomicBoolean active;
 
     private int sentMessages;
@@ -42,12 +44,13 @@ public class Node extends Thread {
     private final AtomicInteger numFinishedListening = new AtomicInteger(0);
     private final AtomicBoolean allConnectionsEstablished = new AtomicBoolean(false);
     private final ConcurrentHashMap<Integer, SctpChannel> channelMap = new ConcurrentHashMap<>();
+    private ConcurrentHashMap<Integer, List<Integer>> vcMap;
 
     public static final int MAX_MSG_SIZE = 4096;
 
 
     public Node(int minPerActive, int maxPerActive, int minSendDelay, int snapShotDelay, int maxNumber, int nodeID,
-                String ip, int port, Map<Integer, NodeInfo> neighborMap) {
+                String ip, int port, int numNodes, Map<Integer, NodeInfo> neighborMap) {
         this.minPerActive = minPerActive;
         this.maxPerActive = maxPerActive;
         this.minSendDelay = minSendDelay;
@@ -56,9 +59,15 @@ public class Node extends Thread {
         this.nodeID = nodeID;
         this.ip = ip;
         this.port = port;
+        this.numNodes = numNodes;
         this.neighborMap = neighborMap;
         this.active = new AtomicBoolean(nodeID == 0);
-        List<Integer> initialClock = new ArrayList<>(Collections.nCopies(neighborMap.keySet().size(), 0));
+        List<Integer> initialClock = new ArrayList<>(Collections.nCopies(numNodes, 0));
+        // Give all the vector clocks values to make isConsistent return false if they are never updated
+        vcMap = new ConcurrentHashMap<>();
+        for (int i = 0; i < numNodes; i++) {
+            vcMap.put(i, initialClock);
+        }
         initialClock.set(nodeID, 1);
         this.vectClock = Collections.synchronizedList(initialClock);
     }
@@ -95,31 +104,22 @@ public class Node extends Thread {
 
     public static void receiveConfig(SctpChannel sc) {
         try {
-            ByteBuffer buf = ByteBuffer.allocateDirect(Node.MAX_MSG_SIZE); // Messages are received over SCTP using ByteBuffer
-
             // Global Parameters
-            sc.receive(buf, null, null);
-            int minPerActive = Message.fromByteBuffer(buf).toInt();
-            sc.receive(buf, null, null);
-            int maxPerActive = Message.fromByteBuffer(buf).toInt();
-            sc.receive(buf, null, null);
-            int minSendDelay = Message.fromByteBuffer(buf).toInt();
-            sc.receive(buf, null, null);
-            int snapshotDelay = Message.fromByteBuffer(buf).toInt();
-            sc.receive(buf, null, null);
-            int maxNumber = Message.fromByteBuffer(buf).toInt();
+            int minPerActive = (int) Message.receiveMessage(sc).message;
+            int maxPerActive = (int) Message.receiveMessage(sc).message;
+            int minSendDelay = (int) Message.receiveMessage(sc).message;
+            int snapshotDelay = (int) Message.receiveMessage(sc).message;
+            int maxNumber = (int) Message.receiveMessage(sc).message;
 
             // Node info about self
-            sc.receive(buf, null, null);
-            int id = Message.fromByteBuffer(buf).toInt();
-            sc.receive(buf, null, null);
-            String ip = Message.fromByteBuffer(buf).message;
-            sc.receive(buf, null, null);
-            int port = Message.fromByteBuffer(buf).toInt();
+            int id = (int) Message.receiveMessage(sc).message;
+            String ip = (String) Message.receiveMessage(sc).message;
+            int port = (int) Message.receiveMessage(sc).message;
 
-            // Neighbor node info
-            sc.receive(buf, null, null);
-            String nodesInfoString = Message.fromByteBuffer(buf).message;
+
+            // Other node info
+            int numNodes = (int) Message.receiveMessage(sc).message;
+            String nodesInfoString = (String) Message.receiveMessage(sc).message;
             String mapEntry;
             Scanner scanner = new Scanner(nodesInfoString);
             Map<Integer, NodeInfo> neighborMap = new HashMap<>();
@@ -136,18 +136,16 @@ public class Node extends Thread {
                 neighborMap.put(neighborID, neighborInfo);
             }
 
-            node = new Node(minPerActive, maxPerActive, minSendDelay, snapshotDelay, maxNumber, id, ip, port, neighborMap);
+            node = new Node(minPerActive, maxPerActive, minSendDelay, snapshotDelay, maxNumber, id, ip, port, numNodes, neighborMap);
             // Let Launcher know that it is accepting connections
             AcceptThread ac = new AcceptThread(node, node.port);
             ac.start();
             System.out.println("AC started");
             Message msg = new Message("Initialized");
-            MessageInfo messageInfo = MessageInfo.createOutgoing(null, 0); // MessageInfo for SCTP layer
-            sc.send(msg.toByteBuffer(), messageInfo);
+            msg.send(sc);
             System.out.println("Send initialized");
 
-            sc.receive(buf, null, null);
-            if (!Message.fromByteBuffer(buf).message.equals("Start Connections")){
+            if (!Message.receiveMessage(sc).message.equals("Start Connections")){
                 System.err.println("Didn't receive start message");
             }
             System.out.println("STARTING NODE " + node.nodeID);
@@ -166,7 +164,6 @@ public class Node extends Thread {
             while (!allConnectionsEstablished.get() || !active.get()) {
                 this.waitSynchronized();
             }
-            Message msg = new Message("Hi from Node " + nodeID);
             Object[] neighborMapKeys = neighborMap.keySet().toArray();
             Random random = new Random();
             int numMsgs = random.nextInt(maxPerActive - minPerActive + 1) + minPerActive;
@@ -177,7 +174,7 @@ public class Node extends Thread {
                 MessageInfo messageInfo = MessageInfo.createOutgoing(null, 0);
                 try {
                     SctpChannel channel = channelMap.get(neighborIndex);
-                    channel.send(msg.toByteBuffer(), messageInfo);
+                    syncSend(channel, "Hi from node" + nodeID);
                     System.out.println("Sent message to " + neighborIndex);
                     sentMessages++;
 
@@ -192,6 +189,15 @@ public class Node extends Thread {
             active.set(false);
         }
 
+    }
+
+
+    public void takeSnapshot() {
+        /*
+        part 2 goes here
+         */
+
+        boolean isConsistent = isConsistent();
     }
 
     public void waitSynchronized() {
@@ -218,7 +224,6 @@ public class Node extends Thread {
 
 
     public void createConnections() {
-        Message msg = new Message(String.valueOf(this.getNodeId()));
 
         for (int i : neighborMap.keySet()) {
             if (i < nodeID) {
@@ -230,8 +235,9 @@ public class Node extends Thread {
                     sc = SctpChannel.open(neighbor.addr, 0, 0);
                     this.addChannel(i, sc); // Connect to server using the address
                     MessageInfo messageInfo = MessageInfo.createOutgoing(null, 0); // MessageInfo for SCTP layer
-                    sc.send(msg.toByteBuffer(), messageInfo); // Messages are sent over SCTP using ByteBuffer
-                    System.out.println("\t Message sent to node " + i + ": " + msg.message);
+                    String msg_content = "Hi from Node " + nodeID;
+                    syncSend(sc, msg_content);
+                    System.out.println("\t Message sent to node " + i + ": " + msg_content);
                     ListenerThread listenerThread = new ListenerThread(this, sc, i);
                     listenerThread.start();
                 } catch (Exception e) {
@@ -241,6 +247,21 @@ public class Node extends Thread {
 
             }
         }
+    }
+
+    public boolean isConsistent() {
+        synchronized (LOCK) {
+            synchronized (vcMap) {
+                for (int i : vcMap.keySet()) {
+                    for (int j : vcMap.keySet()) {
+                        if (vcMap.get(i).get(i) <= vcMap.get(j).get(i)) {
+                            return false;
+                        }
+                    }
+                }
+            }
+        }
+        return true;
     }
 
     public int getPort() {
@@ -284,13 +305,13 @@ public class Node extends Thread {
 
     public void syncIncr() {
         synchronized (LOCK) {
-            synchronized (node.vectClock) {
+            synchronized (vectClock) {
                 vectClock.set(nodeID, vectClock.get(nodeID) + 1);
             }
         }
     }
 
-    public void syncSet(ArrayList<Integer> msgVectClock) {
+    public void syncSet(List<Integer> msgVectClock) {
         synchronized (LOCK) {
             synchronized (vectClock) {
                 for (int i = 0; i < vectClock.size(); i++) {
@@ -305,8 +326,18 @@ public class Node extends Thread {
 
     public int syncGet(int i) {
         synchronized (LOCK) {
-            synchronized (node.vectClock) {
+            synchronized (vectClock) {
                 return vectClock.get(i);
+            }
+        }
+    }
+
+    public void syncSend(SctpChannel sc, String message_content) throws Exception{
+        synchronized (LOCK) {
+            synchronized (vectClock) {
+                syncIncr();
+                Message msg = new Message(MessageType.string, message_content, vectClock);
+                msg.send(sc);
             }
         }
     }
