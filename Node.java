@@ -4,7 +4,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import com.sun.nio.sctp.MessageInfo;
 import com.sun.nio.sctp.SctpChannel;
 import java.net.InetSocketAddress;
-import java.nio.ByteBuffer;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.lang.System;
@@ -334,7 +333,7 @@ public class Node extends Thread {
         synchronized (LOCK) {
             synchronized (vectClock) {
                 syncIncr();
-                Message msg = new Message(nodeID, MessageType.string, message_content, vectClock);
+                Message msg = new Message(nodeID, MessageType.application, message_content, vectClock);
                 msg.send(sc);
             }
         }

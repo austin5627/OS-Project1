@@ -7,7 +7,6 @@ import com.sun.nio.sctp.*;
 
 import java.nio.ByteBuffer;
 import java.util.Arrays;
-import java.util.List;
 
 public class ListenerThread extends Thread {
     private SctpChannel sc;
@@ -36,7 +35,7 @@ public class ListenerThread extends Thread {
                         keepListening = false;
                     }
 
-                } else {
+                } else if (message.msgType == MessageType.application){
                     int[] msgVectClock = message.vectorClock;
                     System.out.println("Received: " + message + " with vector clock: " + Arrays.toString(msgVectClock));
                     ownNode.syncSet(msgVectClock);

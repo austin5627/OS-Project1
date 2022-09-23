@@ -7,12 +7,10 @@ import java.io.ObjectOutputStream;
 import java.io.ObjectInputStream;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 
 // Enumeration to store message types
-enum MessageType{string, control, launcher}
+enum MessageType{application, control, launcher}
 
 // Object to store message passing between nodes
 // Message class can be modified to incoroporate all fields than need to be passed
