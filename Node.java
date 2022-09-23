@@ -309,12 +309,12 @@ public class Node extends Thread {
         }
     }
 
-    public void syncSet(List<Integer> msgVectClock) {
+    public void syncSet(int[] msgVectClock) {
         synchronized (LOCK) {
             synchronized (vectClock) {
                 for (int i = 0; i < vectClock.size(); i++) {
-                    if (vectClock.get(i) < msgVectClock.get(i)) {
-                        vectClock.set(i, msgVectClock.get(i));
+                    if (vectClock.get(i) < msgVectClock[i]) {
+                        vectClock.set(i, msgVectClock[i]);
                     }
                 }
                 syncIncr();
