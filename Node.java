@@ -1,6 +1,4 @@
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Scanner;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 import com.sun.nio.sctp.MessageInfo;
@@ -10,7 +8,6 @@ import java.nio.ByteBuffer;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.lang.System;
-import java.util.Random;
 
 class NodeInfo {
     String ip;
@@ -39,6 +36,8 @@ public class Node extends Thread {
     public AtomicBoolean active;
 
     private int sentMessages;
+    private final Object LOCK = new Object();
+    List<Integer> vectClock;
 
     private final AtomicInteger numFinishedListening = new AtomicInteger(0);
     private final AtomicBoolean allConnectionsEstablished = new AtomicBoolean(false);
@@ -59,6 +58,9 @@ public class Node extends Thread {
         this.port = port;
         this.neighborMap = neighborMap;
         this.active = new AtomicBoolean(nodeID == 0);
+        List<Integer> initialClock = new ArrayList<>(Collections.nCopies(neighborMap.keySet().size(), 0));
+        initialClock.set(nodeID, 1);
+        this.vectClock = Collections.synchronizedList(initialClock);
     }
 
     public static void main(String[] args) throws Exception {
@@ -279,6 +281,36 @@ public class Node extends Thread {
     public boolean getAllConnectionsEstablished(){
         return allConnectionsEstablished.get();
     }
+
+    public void syncIncr() {
+        synchronized (LOCK) {
+            synchronized (node.vectClock) {
+                vectClock.set(nodeID, vectClock.get(nodeID) + 1);
+            }
+        }
+    }
+
+    public void syncSet(ArrayList<Integer> msgVectClock) {
+        synchronized (LOCK) {
+            synchronized (vectClock) {
+                for (int i = 0; i < vectClock.size(); i++) {
+                    if (vectClock.get(i) < msgVectClock.get(i)) {
+                        vectClock.set(i, msgVectClock.get(i));
+                    }
+                }
+                syncIncr();
+            }
+        }
+    }
+
+    public int syncGet(int i) {
+        synchronized (LOCK) {
+            synchronized (node.vectClock) {
+                return vectClock.get(i);
+            }
+        }
+    }
+
 
     /*
     public void sendIntegers() {
