@@ -23,12 +23,14 @@ public class Message implements Serializable
 	MessageType msgType;
 	public Serializable message;
 	int[] vectorClock;
+	int sender;
 	// Constructor
 	public Message(MessageType msgType, Serializable msg, List<Integer> vectorClock)
 	{
 		this.msgType = msgType;
 		this.message = msg;
 		this.vectorClock = vectorClock.stream().mapToInt(Integer::intValue).toArray();
+		this.sender = sender;
 	}
 
 

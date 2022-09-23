@@ -172,7 +172,7 @@ public class Node extends Thread {
                 int neighborIndex = (int) neighborMapKeys[random.nextInt(neighborMapKeys.length)];
                 try {
                     SctpChannel channel = channelMap.get(neighborIndex);
-                    syncSend(channel, "Hi from node" + nodeID);
+                    syncSend(channel, "Hi from node " + nodeID);
                     System.out.println("Sent message to " + neighborIndex);
                     sentMessages++;
 
@@ -334,7 +334,7 @@ public class Node extends Thread {
         synchronized (LOCK) {
             synchronized (vectClock) {
                 syncIncr();
-                Message msg = new Message(MessageType.string, message_content, vectClock);
+                Message msg = new Message(nodeID, MessageType.string, message_content, vectClock);
                 msg.send(sc);
             }
         }
