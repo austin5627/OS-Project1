@@ -170,8 +170,6 @@ public class Node extends Thread {
             while (sentMessages < numMsgs) {
 
                 int neighborIndex = (int) neighborMapKeys[random.nextInt(neighborMapKeys.length)];
-                NodeInfo nextNeighbor = neighborMap.get(neighborIndex);
-                MessageInfo messageInfo = MessageInfo.createOutgoing(null, 0);
                 try {
                     SctpChannel channel = channelMap.get(neighborIndex);
                     syncSend(channel, "Hi from node" + nodeID);
