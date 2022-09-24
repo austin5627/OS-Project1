@@ -1,14 +1,8 @@
 #!/bin/bash
 
-
 # Change this to your netid
 netid=$(whoami)
 
-#
-# Root directory of your project
-PROJDIR=$HOME/cs6378/proj1/cs6378proj1
-
-#
 # Directory where the config file is located on your local system
 CONFIGLOCAL=./config.txt
 
