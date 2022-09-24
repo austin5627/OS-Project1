@@ -19,11 +19,11 @@ enum MessageType{application, control, launcher}
 public class Message implements Serializable
 {
 	MessageType msgType;
-	public Serializable message;
+	public Object message;
 	int[] vectorClock;
 	int sender;
 	// Constructor
-	public Message(int sender, MessageType msgType, Serializable msg, List<Integer> vectorClock)
+	public Message(int sender, MessageType msgType, Object msg, List<Integer> vectorClock)
 	{
 		this.msgType = msgType;
 		this.message = msg;
@@ -32,7 +32,7 @@ public class Message implements Serializable
 	}
 
 
-	public Message(Serializable msg){
+	public Message(Object msg){
 		this.msgType = MessageType.launcher;
 		this.message = msg;
 		this.vectorClock = null;

@@ -37,7 +37,7 @@ public class ListenerThread extends Thread {
 
                 } else if (message.msgType == MessageType.application){
                     int[] msgVectClock = message.vectorClock;
-                    System.out.println("Received: " + message + " with vector clock: " + Arrays.toString(msgVectClock));
+                    System.out.println("Received: " + message.message + " with vector clock: " + Arrays.toString(msgVectClock));
                     ownNode.syncSet(msgVectClock);
                     if (!ownNode.active.getAndSet(true)){
                         notifyNode();
