@@ -1,16 +1,14 @@
 import com.sun.nio.sctp.MessageInfo;
 import com.sun.nio.sctp.SctpChannel;
+import org.jetbrains.annotations.NotNull;
 
-import java.io.Serializable;
+import java.io.*;
 import java.nio.ByteBuffer;
-import java.io.ObjectOutputStream;
-import java.io.ObjectInputStream;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
+import java.nio.channels.AsynchronousCloseException;
 import java.util.List;
 
 // Enumeration to store message types
-enum MessageType{application, control, launcher}
+enum MessageType{application, control, launcher, state}
 
 // Object to store message passing between nodes
 // Message class can be modified to incoroporate all fields than need to be passed
@@ -31,6 +29,13 @@ public class Message implements Serializable
 		this.sender = sender;
 	}
 
+	public Message(int sender, MessageType msgType, Object msg)
+	{
+		this.msgType = msgType;
+		this.message = msg;
+		this.vectorClock = null;
+		this.sender = sender;
+	}
 
 	public Message(Object msg){
 		this.msgType = MessageType.launcher;
@@ -94,7 +99,8 @@ public class Message implements Serializable
 			ByteBuffer buf = ByteBuffer.allocateDirect(Node.MAX_MSG_SIZE);
 			MessageInfo messageInfo = channel.receive(buf, null, null);
 			return Message.fromByteBuffer(buf);
-		} catch (Exception e) {
+		} catch (EOFException | AsynchronousCloseException ignored) {}
+		catch (Exception e) {
 			e.printStackTrace();
 			System.exit(0);
 		}

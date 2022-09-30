@@ -34,9 +34,10 @@ class NodeConfig {
 public class Launcher {
 	private static final int LAUNCHER_PORT = 15754;
 	public static String nodeMap = "";
+	private static String filename;
 
 	public static void main(String[] args) {
-		String filename = System.getenv("CONFIGLOCAL");
+		filename = System.getenv("CONFIGLOCAL");
         File configFile = new File(filename);
 
 		Pattern nodePattern = Pattern.compile("(\\d+) (dc\\d+) (\\d+)");
@@ -133,8 +134,11 @@ public class Launcher {
 
 			MessageInfo messageInfo = MessageInfo.createOutgoing(null, 0); // MessageInfo for SCTP layer
 
+			Message msg = new Message(filename.substring(0, filename.length()-4));
+			msg.send(sc);
+
 			// Global Parameters
-			Message msg = new Message(minPerActive);
+			msg = new Message(minPerActive);
 			msg.send(sc);
 			msg = new Message(maxPerActive);
 			msg.send(sc);

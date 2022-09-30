@@ -1,9 +1,12 @@
+import java.io.*;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 import com.sun.nio.sctp.MessageInfo;
 import com.sun.nio.sctp.SctpChannel;
+
 import java.net.InetSocketAddress;
+import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.lang.System;
@@ -25,6 +28,20 @@ class NodeInfo {
     }
 }
 
+class NodeState implements Serializable {
+    List<Integer> vectorClock;
+    boolean active;
+    Set<Message> inTransitMsgs;
+    int nodeId;
+
+    public NodeState(int nodeId, List<Integer> vectorClock, boolean active, Set<Message> inTransitMsgs) {
+        this.vectorClock = vectorClock;
+        this.active = active;
+        this.inTransitMsgs = inTransitMsgs;
+        this.nodeId = nodeId;
+    }
+}
+
 public class Node extends Thread {
     private static Node node;
     private final int minPerActive, maxPerActive, minSendDelay, snapShotDelay, maxNumber;
@@ -42,10 +59,20 @@ public class Node extends Thread {
 
     private final AtomicInteger numFinishedListening = new AtomicInteger(0);
     private final AtomicBoolean allConnectionsEstablished = new AtomicBoolean(false);
+    private final AtomicBoolean startSnapshot = new AtomicBoolean(false);
+    public final AtomicBoolean endSnapshot = new AtomicBoolean(true);
+    private final AtomicBoolean startConvergeCast = new AtomicBoolean(false);
+    public final AtomicBoolean terminate = new AtomicBoolean(false);
     private final ConcurrentHashMap<Integer, SctpChannel> channelMap = new ConcurrentHashMap<>();
-    private ConcurrentHashMap<Integer, List<Integer>> vcMap;
+    private List<Integer> snapshot;
+    private final Set<Message> inTransitMsgs;
+    public final Map<Integer, NodeState> nodeStateMap;
+
+    public int treeParent;
+    public final CopyOnWriteArraySet<Integer> redChannels;
 
     public static final int MAX_MSG_SIZE = 4096;
+    private static String filename;
 
 
     public Node(int minPerActive, int maxPerActive, int minSendDelay, int snapShotDelay, int maxNumber, int nodeID,
@@ -61,14 +88,10 @@ public class Node extends Thread {
         this.numNodes = numNodes;
         this.neighborMap = neighborMap;
         this.active = new AtomicBoolean(nodeID == 0);
-        List<Integer> initialClock = new ArrayList<>(Collections.nCopies(numNodes, 0));
-        // Give all the vector clocks values to make isConsistent return false if they are never updated
-        vcMap = new ConcurrentHashMap<>();
-        for (int i = 0; i < numNodes; i++) {
-            vcMap.put(i, initialClock);
-        }
-        initialClock.set(nodeID, 1);
-        this.vectClock = Collections.synchronizedList(initialClock);
+        this.vectClock = Collections.synchronizedList(new ArrayList<>(Collections.nCopies(numNodes, 0)));
+        redChannels = new CopyOnWriteArraySet<>();
+        inTransitMsgs = new HashSet<>();
+        nodeStateMap = new ConcurrentHashMap<>();
     }
 
     public static void main(String[] args) throws Exception {
@@ -103,6 +126,8 @@ public class Node extends Thread {
 
     public static void receiveConfig(SctpChannel sc) {
         try {
+            filename = (String) Message.receiveMessage(sc).message;
+
             // Global Parameters
             int minPerActive = (int) Message.receiveMessage(sc).message;
             int maxPerActive = (int) Message.receiveMessage(sc).message;
@@ -157,25 +182,57 @@ public class Node extends Thread {
         }
     }
 
-    public void startProtocol(){
+    public void startProtocol() {
         this.createConnections();
+        while (!allConnectionsEstablished.get()) {
+            waitSynchronized();
+        }
+        if (node.nodeID == 0) {
+            SnapshotThread st = new SnapshotThread(snapShotDelay, node);
+            st.start();
+        }
         while (sentMessages < maxNumber) {
-            while (!allConnectionsEstablished.get() || !active.get()) {
+            while (!active.get() && !startSnapshot.get() && !terminate.get() && !startConvergeCast.get()) {
                 this.waitSynchronized();
+            }
+            if (terminate.get()) {
+                terminateProtocol();
+                return;
+            }
+            else if (startConvergeCast.get()) {
+                convergeCast();
+                continue;
+            }
+            else if (startSnapshot.get()) {
+                takeSnapshot();
+                continue;
             }
             Object[] neighborMapKeys = neighborMap.keySet().toArray();
             Random random = new Random();
             int numMsgs = random.nextInt(maxPerActive - minPerActive + 1) + minPerActive;
+            long waitStart = 0;
             while (sentMessages < numMsgs) {
 
+                // Wait minSendDelay to send next message
+                waitSynchronized(minSendDelay);
+                if (startSnapshot.get()) {
+                    takeSnapshot();
+                    if (System.currentTimeMillis() - waitStart < minSendDelay) {
+                        continue;
+                    }
+                }
+                else if (startConvergeCast.get()) {
+                    convergeCast();
+                    if (System.currentTimeMillis() - waitStart < minSendDelay) {
+                        continue;
+                    }
+                }
                 int neighborIndex = (int) neighborMapKeys[random.nextInt(neighborMapKeys.length)];
                 try {
                     SctpChannel channel = channelMap.get(neighborIndex);
                     syncSend(channel, "Hi from node " + nodeID);
                     sentMessages++;
-
-                    // Wait minSendDelay to send next message
-                    waitSynchronized(minSendDelay);
+                    waitStart = System.currentTimeMillis();
                 } catch (Exception e) {
                     e.printStackTrace();
                     System.exit(0);
@@ -187,13 +244,79 @@ public class Node extends Thread {
 
     }
 
+    private void terminateProtocol() {
+        System.out.println("Terminating");
+        for (SctpChannel channel : channelMap.values()) {
+            try {
+                if (channel.isOpen()) {
+                    Message msg = new Message(nodeID, MessageType.control, "TERMINATE");
+                    msg.send(channel);
+                    channel.close();
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        System.out.println("Halting node " + nodeID);
+        System.exit(0);
+    }
+
 
     public void takeSnapshot() {
-        /*
-        part 2 goes here
-         */
+        System.out.println("Taking snapshot");
+        snapshot = new ArrayList<>();
+        snapshot.addAll(vectClock);
+        nodeStateMap.clear();
+        for (SctpChannel channel: channelMap.values()) {
+            Message snapshotMsg = new Message(nodeID, MessageType.control, "MARKER");
+            snapshotMsg.send(channel);
+        }
+        startSnapshot.set(false);
+        endSnapshot.set(false);
+    }
 
-        boolean isConsistent = isConsistent();
+    public void convergeCast() {
+        System.out.println("Starting converge cast");
+        NodeState state = new NodeState(nodeID, snapshot, active.get(), inTransitMsgs);
+        Message stateMsg = new Message(nodeID, MessageType.state, state);
+        stateMsg.send(channelMap.get(treeParent));
+        startConvergeCast.set(false);
+    }
+
+    public void processSnapshot() {
+        System.out.println("Processing snapshot");
+        if (nodeStateMap.size() < numNodes - 1) {
+            return;
+        }
+        nodeStateMap.put(nodeID, new NodeState(nodeID, snapshot, active.get(), inTransitMsgs));
+        // do stuff
+        boolean allPassive = true;
+        Map<Integer, List<Integer>> vcMap = new HashMap<>();
+        for (NodeState state : nodeStateMap.values()) {
+            if (state.active) {
+                allPassive = false;
+            }
+            int i = state.nodeId;
+            List<Integer> clock = state.vectorClock;
+            vcMap.put(i, clock);
+            String outputFileName = filename + "-" + i + ".out";
+            try (BufferedWriter writer = new BufferedWriter(new FileWriter(outputFileName, true))){
+                for (int j : clock) {
+                    writer.write(j + " ");
+                }
+                writer.write("\n");
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
+        System.out.println("Consistency: " + isConsistent(vcMap));
+
+        if (allPassive) {
+            // Terminate all connections
+            terminateProtocol();
+        } else {
+            endSnapshot.set(true);
+        }
     }
 
     public void waitSynchronized() {
@@ -244,19 +367,47 @@ public class Node extends Thread {
         }
     }
 
-    public boolean isConsistent() {
+
+
+    public boolean isConsistent(Map<Integer, List<Integer>> vcMap) {
+        for (int i : vcMap.keySet()) {
+            for (int j : vcMap.keySet()) {
+                if (vcMap.get(i).get(i) < vcMap.get(j).get(i)) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
+    public void markerActions(int connectedNode, Message msg) {
         synchronized (LOCK) {
-            synchronized (vcMap) {
-                for (int i : vcMap.keySet()) {
-                    for (int j : vcMap.keySet()) {
-                        if (vcMap.get(i).get(i) <= vcMap.get(j).get(i)) {
-                            return false;
+            synchronized (redChannels) {
+                // Need to synchronize this check so multiple channels can't think they are the first to receive a marker
+                if (redChannels.isEmpty()) {
+                    System.out.println("First marker received");
+                    treeParent = connectedNode;
+                    redChannels.addAll(neighborMap.keySet());
+                    redChannels.remove(connectedNode);
+                    startSnapshot.set(true);
+                    synchronized (this){
+                        this.notify();
+                    }
+                }
+                else {
+                    redChannels.remove(connectedNode);
+                    if (redChannels.isEmpty()) {
+                        System.out.println("All markers received");
+                        if (nodeID != 0) {
+                            startConvergeCast.set(true);
+                            synchronized (this){
+                                this.notify();
+                            }
                         }
                     }
                 }
             }
         }
-        return true;
     }
 
     public int getPort() {
@@ -327,6 +478,10 @@ public class Node extends Thread {
         }
     }
 
+    public void addMsg(Message msg) {
+        inTransitMsgs.add(msg);
+    }
+
     public void syncSend(SctpChannel sc, String message_content) throws Exception{
         synchronized (LOCK) {
             synchronized (vectClock) {
@@ -338,53 +493,5 @@ public class Node extends Thread {
             }
         }
     }
-
-
-    /*
-    public void sendIntegers() {
-        Random rand = new Random();
-        int broadcastInt;
-        MessageInfo messageInfo = MessageInfo.createOutgoing(null, 0); // MessageInfo for SCTP layer
-        Message msg;
-        for (int i = 0; i < 50; i++) {
-            try {
-                Thread.sleep(rand.nextInt(17) + 2);
-                broadcastInt = rand.nextInt(1001);
-                broadcastSum += broadcastInt;
-                for (SctpChannel sc : channelMap.values()) {
-                    msg = new Message(Integer.toString(broadcastInt));
-                    sc.send(msg.toByteBuffer(), messageInfo);
-                }
-            } catch (InterruptedException e) {
-                System.out.println("daskjgfgkjffal");
-            } catch (IOException e) {
-                System.out.println("grsa");
-            } catch (Exception e) {
-                System.out.println("ewhg");
-            }
-        }
-    }
-     */
-
-    /*
-    public void report() {
-        System.out.println("Sum for self: " + broadcastSum);
-
-        while (numFinishedListening.get() < 7) {
-            try {
-                synchronized(this) {
-                    wait(1000);
-                }
-            } catch (InterruptedException e) {
-                System.out.println(e);
-            }
-            System.out.println("NumFinishedListening:" + numFinishedListening.get());
-        }
-
-        for (Integer i : sumMap.keySet()) {
-            System.out.println("Sum for node " + i + ": " + sumMap.get(i));
-        }
-    }
-     */
 
 }
