@@ -62,7 +62,8 @@ public class Node extends Thread {
     private final AtomicBoolean startSnapshot = new AtomicBoolean(false);
     public final AtomicBoolean endSnapshot = new AtomicBoolean(true);
     private final AtomicBoolean startConvergeCast = new AtomicBoolean(false);
-    public final AtomicBoolean terminate = new AtomicBoolean(false);
+    public final AtomicBoolean
+            terminate = new AtomicBoolean(false);
     private final ConcurrentHashMap<Integer, SctpChannel> channelMap = new ConcurrentHashMap<>();
     private List<Integer> snapshot;
     private final Set<Message> inTransitMsgs;
@@ -254,6 +255,7 @@ public class Node extends Thread {
 
     private void terminateProtocol() {
         System.out.println("Terminating");
+        System.out.println("Total messages sent: " + sentMessages);
         for (SctpChannel channel : channelMap.values()) {
             try {
                 if (channel.isOpen()) {
