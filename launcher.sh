@@ -1,11 +1,10 @@
 #!/bin/bash
 
-./cleanup.sh
 # Change this to your netid
-export netid=ewc180001
+export netid=$(whoami)
 
 # Root directory of your project
-export PROJDIR=$HOME/cs6378/proj1/cs6378proj1
+export PROJDIR=$HOME/cs6378/proj1/
 
 # Directory where the config file is located on your local system
 export CONFIGLOCAL=./config.txt
@@ -15,6 +14,10 @@ export BINDIR=$PROJDIR
 
 # Your main project class
 export PROG=Node
+
+# Directory to place log files
+# ends with a slash
+export OUTPUTDIR=$PROJDIR/
 
 javac Node.java Launcher.java
 java Launcher

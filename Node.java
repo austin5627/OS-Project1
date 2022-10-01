@@ -161,6 +161,14 @@ public class Node extends Thread {
             }
 
             node = new Node(minPerActive, maxPerActive, minSendDelay, snapshotDelay, maxNumber, id, ip, port, numNodes, neighborMap);
+
+            if (node.nodeID == 0) {
+                for (int i = 0; i < numNodes; i++) {
+                    File file = new File(filename + "-" + i + ".out");
+                    file.delete();
+                }
+            }
+
             // Let Launcher know that it is accepting connections
             AcceptThread ac = new AcceptThread(node, node.port);
             ac.start();

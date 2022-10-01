@@ -9,6 +9,7 @@ Edit [launcher.sh](launcher.sh) to add the correct environment variables
 - CONFIGLOCAL: path to config file
 - BINDIR: path to java files
 - PROG: Node
+- OUTPUTDIR: where to put output files
 
 run [launcher.sh](launcher.sh) from same directory as the java files with `./launcher.sh`
 

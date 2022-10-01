@@ -134,7 +134,8 @@ public class Launcher {
 
 			MessageInfo messageInfo = MessageInfo.createOutgoing(null, 0); // MessageInfo for SCTP layer
 
-			Message msg = new Message(filename.substring(0, filename.length()-4));
+			String out_dir = System.getenv("OUTPUTDIR");
+			Message msg = new Message(out_dir + filename.substring(0, filename.length()-4));
 			msg.send(sc);
 
 			// Global Parameters
