@@ -273,7 +273,7 @@ public class Node extends Thread {
     public void takeSnapshot() {
         System.out.println("Taking snapshot");
         snapshot = new ArrayList<>();
-        System.out.print("snapshot: ");
+        System.out.print("vectClock: ");
         for (int i : vectClock) {
             System.out.print(i + " ");
         }
@@ -293,6 +293,10 @@ public class Node extends Thread {
         NodeState state = new NodeState(nodeID, snapshot, active.get(), inTransitMsgs);
         Message stateMsg = new Message(nodeID, MessageType.state, state);
         System.out.println("tree parent node is " + treeParent);
+        System.out.print("snapshot: ");
+        for (int i : snapshot) {
+            System.out.print(i + " ");
+        }
         stateMsg.send(channelMap.get(treeParent));
         startConvergeCast.set(false);
         System.out.println("Finished converge cast");
