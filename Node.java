@@ -313,6 +313,9 @@ public class Node extends Thread {
             vcMap.put(i, clock);
             String outputFileName = filename + "-" + i + ".out";
             try (BufferedWriter writer = new BufferedWriter(new FileWriter(outputFileName, true))){
+                if (clock == null) {
+                    System.out.println("Null for process " + i);
+                }
                 for (int j : clock) {
                     writer.write(j + " ");
                 }
