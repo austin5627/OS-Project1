@@ -27,9 +27,9 @@ public class AcceptThread extends Thread {
                 SctpChannel sc = ssc.accept();
                 // Should get a message immediately from client with the nodeNum of the remote device
                 Message message = Message.receiveMessage(sc);
-                String msg = (String) message.message;
+                //String msg = (String) message.message;
                 int connectedNodeNum = message.sender;
-                System.out.println("Message received from node " + connectedNodeNum + ": " + msg);
+                //System.out.println("Message received from node " + connectedNodeNum + ": " + msg);
 
                 // parse int from the message
                 ListenerThread lt = new ListenerThread(ownNode, sc, connectedNodeNum);
