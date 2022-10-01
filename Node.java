@@ -289,6 +289,7 @@ public class Node extends Thread {
         Message stateMsg = new Message(nodeID, MessageType.state, state);
         stateMsg.send(channelMap.get(treeParent));
         startConvergeCast.set(false);
+        System.out.println("Finished converge cast");
     }
 
     public void processSnapshot() {
@@ -313,11 +314,12 @@ public class Node extends Thread {
             vcMap.put(i, clock);
             String outputFileName = filename + "-" + i + ".out";
             try (BufferedWriter writer = new BufferedWriter(new FileWriter(outputFileName, true))){
-                if (clock == null) {
-                    System.out.println("Null for process " + i);
-                }
-                for (int j : clock) {
-                    writer.write(j + " ");
+                if (clock != null) {
+                    for (int j : clock) {
+                        writer.write(j + " ");
+                    }
+                } else {
+                    System.out.println("Null clock for process " + i);
                 }
                 writer.write("\n");
             } catch (IOException e) {
