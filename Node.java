@@ -273,6 +273,9 @@ public class Node extends Thread {
     public void takeSnapshot() {
         System.out.println("Taking snapshot");
         snapshot = new ArrayList<>();
+        if (vectClock == null) {
+            System.out.println("vectClock is null");
+        }
         snapshot.addAll(vectClock);
         nodeStateMap.clear();
         for (SctpChannel channel: channelMap.values()) {
@@ -420,7 +423,7 @@ public class Node extends Thread {
                     System.out.println("All markers received");
                     while (!startSnapshot.get()) {
                         try {
-                            Thread.sleep(10);
+                            Thread.sleep(2);
                         } catch (InterruptedException e) {
                             e.printStackTrace();
                             System.exit(0);
