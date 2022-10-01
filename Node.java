@@ -299,10 +299,14 @@ public class Node extends Thread {
         nodeStateMap.put(nodeID, new NodeState(nodeID, snapshot, active.get(), inTransitMsgs));
         // do stuff
         boolean allPassive = true;
+        boolean messagesInTransit = false;
         Map<Integer, List<Integer>> vcMap = new HashMap<>();
         for (NodeState state : nodeStateMap.values()) {
             if (state.active) {
                 allPassive = false;
+            }
+            if (state.inTransitMsgs.size() > 0) {
+                messagesInTransit = true;
             }
             int i = state.nodeId;
             List<Integer> clock = state.vectorClock;
@@ -319,7 +323,7 @@ public class Node extends Thread {
         }
         System.out.println("Consistency: " + isConsistent(vcMap));
 
-        if (allPassive) {
+        if (allPassive && !messagesInTransit) {
             // Terminate all connections
             terminateProtocol();
         } else {
