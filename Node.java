@@ -415,6 +415,14 @@ public class Node extends Thread {
                 // Outside the else for the case that a node only has one connection
                 if (redChannels.isEmpty()) {
                     System.out.println("All markers received");
+                    while (!startSnapshot.get()) {
+                        try {
+                            Thread.sleep(10);
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                            System.exit(0);
+                        }
+                    }
                     if (nodeID != 0) {
                         startConvergeCast.set(true);
                         synchronized (this){
