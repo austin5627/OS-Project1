@@ -408,13 +408,14 @@ public class Node extends Thread {
                 }
                 else {
                     redChannels.remove(connectedNode);
-                    if (redChannels.isEmpty()) {
-                        System.out.println("All markers received");
-                        if (nodeID != 0) {
-                            startConvergeCast.set(true);
-                            synchronized (this){
-                                this.notify();
-                            }
+                }
+                // Outside the else for the case that a node only has one connection
+                if (redChannels.isEmpty()) {
+                    System.out.println("All markers received");
+                    if (nodeID != 0) {
+                        startConvergeCast.set(true);
+                        synchronized (this){
+                            this.notify();
                         }
                     }
                 }
