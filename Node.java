@@ -273,9 +273,11 @@ public class Node extends Thread {
     public void takeSnapshot() {
         System.out.println("Taking snapshot");
         snapshot = new ArrayList<>();
-        if (vectClock == null) {
-            System.out.println("vectClock is null");
+        System.out.print("snapshot: ");
+        for (int i : vectClock) {
+            System.out.print(i + " ");
         }
+        System.out.println();
         snapshot.addAll(vectClock);
         nodeStateMap.clear();
         for (SctpChannel channel: channelMap.values()) {
