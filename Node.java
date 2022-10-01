@@ -427,7 +427,7 @@ public class Node extends Thread {
                 // Outside the else for the case that a node only has one connection
                 if (redChannels.isEmpty()) {
                     System.out.println("All markers received");
-                    while (!startSnapshot.get()) {
+                    while (startSnapshot.get()) {
                         try {
                             Thread.sleep(2);
                         } catch (InterruptedException e) {
