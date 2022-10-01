@@ -287,6 +287,7 @@ public class Node extends Thread {
         System.out.println("Starting converge cast");
         NodeState state = new NodeState(nodeID, snapshot, active.get(), inTransitMsgs);
         Message stateMsg = new Message(nodeID, MessageType.state, state);
+        System.out.println("tree parent node is " + treeParent);
         stateMsg.send(channelMap.get(treeParent));
         startConvergeCast.set(false);
         System.out.println("Finished converge cast");
