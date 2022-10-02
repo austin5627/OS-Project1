@@ -249,8 +249,16 @@ public class Node extends Thread {
 
             }
             active.set(false);
-        }
 
+            while(true) {
+                if (startSnapshot.get()) {
+                    takeSnapshot();
+                }
+                if (terminate.get()) {
+                    terminateProtocol();
+                }
+            }
+        }
     }
 
     private void terminateProtocol() {
