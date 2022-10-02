@@ -369,6 +369,7 @@ public class Node extends Thread {
         } else {
             endSnapshot.set(true);
         }
+        inTransitMsgs.clear();
     }
 
     public void waitSynchronized() {
