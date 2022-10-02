@@ -19,5 +19,6 @@ public class SnapshotThread extends Thread{
                 System.exit(0);
             }
         }
+        System.out.println("broke out of loop");
     }
 }

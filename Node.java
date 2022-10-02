@@ -249,14 +249,15 @@ public class Node extends Thread {
 
             }
             active.set(false);
-
-            while(true) {
-                System.out.println("loopin");
-                if (startSnapshot.get()) {
-                    takeSnapshot();
-                }
-                if (terminate.get()) {
-                    terminateProtocol();
+            if (nodeID == 0) {
+                while (true) {
+                    System.out.println("loopin");
+                    if (startSnapshot.get()) {
+                        takeSnapshot();
+                    }
+                    if (terminate.get()) {
+                        terminateProtocol();
+                    }
                 }
             }
         }
