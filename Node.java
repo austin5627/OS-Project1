@@ -221,7 +221,6 @@ public class Node extends Thread {
             int numMsgs = random.nextInt(maxPerActive - minPerActive + 1) + minPerActive;
             long waitStart = 0;
             while (sentMessages < numMsgs) {
-
                 // Wait minSendDelay to send next message
                 waitSynchronized(minSendDelay);
                 if (startSnapshot.get()) {
@@ -250,16 +249,26 @@ public class Node extends Thread {
             }
             active.set(false);
         }
-        if (nodeID == 0) {
-            while (true) {
-                //System.out.println("loopin");
-                if (startSnapshot.get()) {
-                    takeSnapshot();
+        while (true) {
+            //System.out.println("loopin");
+            if (startSnapshot.get()) {
+                takeSnapshot();
+                while (startSnapshot.get()) {
+                    try {
+                        Thread.sleep(2);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                        System.exit(0);
+                    }
+                }
+                if (nodeID == 0) {
                     processSnapshot();
+                } else {
+                    convergeCast();
                 }
-                if (terminate.get()) {
-                    terminateProtocol();
-                }
+            }
+            if (terminate.get()) {
+                terminateProtocol();
             }
         }
     }
@@ -312,6 +321,7 @@ public class Node extends Thread {
         }
         stateMsg.send(channelMap.get(treeParent));
         startConvergeCast.set(false);
+        inTransitMsgs.clear();
         System.out.println("Finished converge cast");
     }
 
