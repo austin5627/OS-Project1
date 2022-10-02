@@ -361,6 +361,8 @@ public class Node extends Thread {
         }
         System.out.println("Consistency: " + isConsistent(vcMap));
 
+        System.out.println("All passive: " + allPassive);
+        System.out.println("Messages in transit: " + messagesInTransit);
         if (allPassive && !messagesInTransit) {
             // Terminate all connections
             terminateProtocol();
