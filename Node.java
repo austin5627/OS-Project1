@@ -251,6 +251,7 @@ public class Node extends Thread {
             active.set(false);
 
             while(true) {
+                System.out.println("loopin");
                 if (startSnapshot.get()) {
                     takeSnapshot();
                 }
