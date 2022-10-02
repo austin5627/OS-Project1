@@ -247,9 +247,9 @@ public class Node extends Thread {
                 }
 
             }
-            active.set(false);
         }
         while (true) {
+            active.set(false);
             //System.out.println("loopin");
             if (startSnapshot.get()) {
                 takeSnapshot();
