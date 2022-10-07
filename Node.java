@@ -252,7 +252,7 @@ public class Node extends Thread {
 
             }
         }
-        System.out.println("Sent all messages");
+        System.out.println("Sent all messages------------------------------------------------------------------------------------");
         while (true) {
             active.set(false);
             //System.out.println("loopin");
