@@ -298,7 +298,9 @@ public class Node extends Thread {
                 Message snapshotMsg = new Message(nodeID, MessageType.control, "MARKER");
                 snapshotMsg.send(channelMap.get(channelId));
             }
-            this.notifyAll();
+            synchronized (this) {
+                this.notifyAll();
+            }
             startSnapshot.set(false);
             endSnapshot.set(false);
        }
