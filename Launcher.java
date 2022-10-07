@@ -77,6 +77,7 @@ public class Launcher {
 						System.out.println("No matches");
 						System.exit(0);
 					}
+					System.out.println(line + "MATCHED");
 					int nodeID = Integer.parseInt(nodeMatcher.group(1));
 					String nodeHost = nodeMatcher.group(2);
 					int nodePort = Integer.parseInt(nodeMatcher.group(3));
