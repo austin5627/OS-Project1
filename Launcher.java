@@ -73,11 +73,9 @@ public class Launcher {
 				} else if (lineNumber <= numNodes){
 					Matcher nodeMatcher = nodePattern.matcher(line);
 					if (!nodeMatcher.find()){
-						System.out.println(line);
 						System.out.println("No matches");
 						System.exit(0);
 					}
-					System.out.println(line + "MATCHED");
 					int nodeID = Integer.parseInt(nodeMatcher.group(1));
 					String nodeHost = nodeMatcher.group(2);
 					int nodePort = Integer.parseInt(nodeMatcher.group(3));

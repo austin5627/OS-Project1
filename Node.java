@@ -100,7 +100,7 @@ public class Node extends Thread {
         int launcherPort = Integer.parseInt(args[1]);
         InetSocketAddress addr = new InetSocketAddress(launcherIP, launcherPort);
         SctpChannel sc;
-        sc = SctpChannel.open(addr, 0, 0);
+        sc = SctpChannel.open(addr, 1, 1);
 
         receiveConfig(sc);
         System.out.println(node.toString());
@@ -392,7 +392,7 @@ public class Node extends Thread {
                 // A node will accept connections from other nodes with a lower number
                 // A node will try to connect to nodes with a higher number
                 try {
-                    sc = SctpChannel.open(neighbor.addr, 0, 0);
+                    sc = SctpChannel.open(neighbor.addr, 1, 1);
                     this.addChannel(i, sc); // Connect to server using the address
                     String msg_content = "Hi to Node " + i + " from Node " + nodeID;
                     Message connect = new Message(nodeID, MessageType.control, msg_content);
