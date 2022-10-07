@@ -54,8 +54,7 @@ public class Node extends Thread {
     public AtomicBoolean active;
 
     private int sentMessages;
-    private final Object LOCK = new Object();
-    List<Integer> vectClock;
+    final List<Integer> vectClock;
 
     private final AtomicInteger numFinishedListening = new AtomicInteger(0);
     private final AtomicBoolean allConnectionsEstablished = new AtomicBoolean(false);
@@ -299,27 +298,24 @@ public class Node extends Thread {
 
     public void takeSnapshot() {
         System.out.println("Syncing");
-        synchronized (LOCK) {
-            System.out.println("Syncing part 2");
-            synchronized (vectClock) {
-                System.out.println("Taking snapshot");
-                snapshot = new ArrayList<>();
-                System.out.print("vectClock: ");
-                for (int i : vectClock) {
-                    System.out.print(i + " ");
-                }
-                System.out.println();
-                snapshot.addAll(vectClock);
-                nodeStateMap.clear();
-                for (int channelId : channelMap.keySet()) {
-                    System.out.println("Response marker from " + nodeID + " to " + channelId);
-                    Message snapshotMsg = new Message(nodeID, MessageType.control, "MARKER");
-                    snapshotMsg.send(channelMap.get(channelId));
-                }
-                startSnapshot.set(false);
-                endSnapshot.set(false);
+        synchronized (vectClock) {
+            System.out.println("Taking snapshot");
+            snapshot = new ArrayList<>();
+            System.out.print("vectClock: ");
+            for (int i : vectClock) {
+                System.out.print(i + " ");
             }
-        }
+            System.out.println();
+            snapshot.addAll(vectClock);
+            nodeStateMap.clear();
+            for (int channelId : channelMap.keySet()) {
+                System.out.println("Response marker from " + nodeID + " to " + channelId);
+                Message snapshotMsg = new Message(nodeID, MessageType.control, "MARKER");
+                snapshotMsg.send(channelMap.get(channelId));
+            }
+            startSnapshot.set(false);
+            endSnapshot.set(false);
+       }
     }
 
     public void convergeCast() {
