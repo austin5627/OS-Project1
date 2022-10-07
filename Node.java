@@ -204,6 +204,7 @@ public class Node extends Thread {
             while (!active.get() && !startSnapshot.get() && !terminate.get() && !startConvergeCast.get()) {
                 this.waitSynchronized();
             }
+            System.out.println("Active " + active.get() + "/Snapshot " + startSnapshot.get() + "/Converge " + startConvergeCast.get() + "/Terminate " + terminate.get());
             if (startSnapshot.get()) {
                 takeSnapshot();
                 continue;
@@ -219,6 +220,7 @@ public class Node extends Thread {
             Object[] neighborMapKeys = neighborMap.keySet().toArray();
             Random random = new Random();
             int numMsgs = random.nextInt(maxPerActive - minPerActive + 1) + minPerActive;
+            int roundMessages = 0;
             long waitStart = 0;
             long waitDelay = minSendDelay;
             while (roundMessages < numMsgs) {
@@ -240,6 +242,7 @@ public class Node extends Thread {
                     SctpChannel channel = channelMap.get(neighborIndex);
                     syncSend(channel, "Hi from node " + nodeID);
                     sentMessages++;
+                    roundMessages++;
                     waitStart = System.currentTimeMillis();
                 } catch (Exception e) {
                     e.printStackTrace();
