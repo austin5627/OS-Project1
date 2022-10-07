@@ -40,7 +40,7 @@ public class Launcher {
 		filename = System.getenv("CONFIGLOCAL");
         File configFile = new File(filename);
 
-		Pattern nodePattern = Pattern.compile("(\\d+) +(dc\\d+) +(\\d+)");
+		Pattern nodePattern = Pattern.compile("(\\d+)\\s+(dc\\d+)\\s+(\\d+)");
 
 		int numNodes = 0, minPerActive = 0, maxPerActive = 0, minSendDelay = 0, snapshotDelay = 0, maxNumber = 0;
 		ArrayList<NodeConfig> nodes = new ArrayList<>();
