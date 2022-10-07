@@ -40,7 +40,7 @@ public class Launcher {
 		filename = System.getenv("CONFIGLOCAL");
         File configFile = new File(filename);
 
-		Pattern nodePattern = Pattern.compile("(\\d+) (dc\\d+) (\\d+)");
+		Pattern nodePattern = Pattern.compile("(\\d+) +(dc\\d+) +(\\d+)");
 
 		int numNodes = 0, minPerActive = 0, maxPerActive = 0, minSendDelay = 0, snapshotDelay = 0, maxNumber = 0;
 		ArrayList<NodeConfig> nodes = new ArrayList<>();
@@ -60,6 +60,7 @@ public class Launcher {
 				if (line.contains("#")) {
 					line = line.substring(0, line.indexOf('#'));
 				}
+				line = line.trim();
 
 				if (lineNumber == 0) {
 					Scanner scanner = new Scanner(line);
