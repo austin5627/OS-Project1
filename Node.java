@@ -200,6 +200,7 @@ public class Node extends Thread {
             st.start();
         }
         while (sentMessages < maxNumber) {
+            System.out.println("sent messages: " + sentMessages + "\tmax number: " + maxNumber);
             while (!active.get() && !startSnapshot.get() && !terminate.get() && !startConvergeCast.get()) {
                 this.waitSynchronized();
             }
@@ -220,7 +221,8 @@ public class Node extends Thread {
             int numMsgs = random.nextInt(maxPerActive - minPerActive + 1) + minPerActive;
             long waitStart = 0;
             long waitDelay = minSendDelay;
-            while (sentMessages < numMsgs) {
+            while (roundMessages < numMsgs) {
+                System.out.println("Round messages " + roundMessages);
                 // Wait minSendDelay to send next message
                 waitSynchronized(waitDelay);
                 if (startSnapshot.get()) {
