@@ -53,7 +53,7 @@ public class Launcher {
 			// Loop over config file
 			StringBuilder sb = new StringBuilder();
 			while ((line = br.readLine()) != null) {
-				if (line.trim().isEmpty() || line.trim().startsWith("#") || !Pattern.matches("^\\d.*", line)) {
+				if (line.trim().isEmpty() || line.trim().startsWith("#") || !Pattern.matches("^\\d.*", line.trim())) {
 					continue;
 				}
 				lineNumber++;
