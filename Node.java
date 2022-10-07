@@ -219,22 +219,20 @@ public class Node extends Thread {
             Random random = new Random();
             int numMsgs = random.nextInt(maxPerActive - minPerActive + 1) + minPerActive;
             long waitStart = 0;
+            long waitDelay = minSendDelay;
             while (sentMessages < numMsgs) {
                 // Wait minSendDelay to send next message
-                System.out.println("3");
-                waitSynchronized(minSendDelay);
-                System.out.println("3.5");
+                waitSynchronized(waitDelay);
                 if (startSnapshot.get()) {
                     takeSnapshot();
-                    if (System.currentTimeMillis() - waitStart < minSendDelay) {
-                        continue;
-                    }
                 }
                 else if (startConvergeCast.get()) {
                     convergeCast();
-                    if (System.currentTimeMillis() - waitStart < minSendDelay) {
-                        continue;
-                    }
+                }
+                if (System.currentTimeMillis() - waitStart < minSendDelay) {
+                    waitDelay = minSendDelay - (System.currentTimeMillis() - waitStart);
+                    System.out.println("Wait longer");
+                    continue;
                 }
                 int neighborIndex = (int) neighborMapKeys[random.nextInt(neighborMapKeys.length)];
                 try {
