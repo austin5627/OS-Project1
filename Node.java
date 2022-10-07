@@ -402,7 +402,7 @@ public class Node extends Thread {
                     sc = SctpChannel.open(neighbor.addr, 0, 0);
                     this.addChannel(i, sc); // Connect to server using the address
                     String msg_content = "Hi to Node " + i + " from Node " + nodeID;
-                    Message connect = new Message(msg_content);
+                    Message connect = new Message(nodeID, MessageType.control, msg_content);
                     connect.send(sc);
                     ListenerThread listenerThread = new ListenerThread(this, sc, i);
                     listenerThread.start();
