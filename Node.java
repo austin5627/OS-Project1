@@ -401,9 +401,9 @@ public class Node extends Thread {
                 try {
                     sc = SctpChannel.open(neighbor.addr, 0, 0);
                     this.addChannel(i, sc); // Connect to server using the address
-                    MessageInfo messageInfo = MessageInfo.createOutgoing(null, 0); // MessageInfo for SCTP layer
                     String msg_content = "Hi to Node " + i + " from Node " + nodeID;
-                    syncSend(sc, msg_content);
+                    Message connect = new Message(msg_content);
+                    connect.send(sc);
                     ListenerThread listenerThread = new ListenerThread(this, sc, i);
                     listenerThread.start();
                 } catch (Exception e) {
