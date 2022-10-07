@@ -200,11 +200,9 @@ public class Node extends Thread {
             st.start();
         }
         while (sentMessages < maxNumber) {
-            System.out.println("sent messages: " + sentMessages + "\tmax number: " + maxNumber);
             while (!active.get() && !startSnapshot.get() && !terminate.get() && !startConvergeCast.get()) {
                 this.waitSynchronized();
             }
-            System.out.println("Active " + active.get() + "/Snapshot " + startSnapshot.get() + "/Converge " + startConvergeCast.get() + "/Terminate " + terminate.get());
             if (startSnapshot.get()) {
                 takeSnapshot();
                 continue;
@@ -224,7 +222,6 @@ public class Node extends Thread {
             long waitStart = 0;
             long waitDelay = minSendDelay;
             while (roundMessages < numMsgs) {
-                System.out.println("Round messages " + roundMessages);
                 // Wait minSendDelay to send next message
                 waitSynchronized(waitDelay);
                 if (startSnapshot.get()) {
@@ -240,7 +237,9 @@ public class Node extends Thread {
                 int neighborIndex = (int) neighborMapKeys[random.nextInt(neighborMapKeys.length)];
                 try {
                     SctpChannel channel = channelMap.get(neighborIndex);
-                    syncSend(channel, "Hi from node " + nodeID);
+                    String message_content = "Hi from node " + nodeID;
+                    System.out.println("Sending to " + neighborIndex + ": " + message_content + " Vector Clock: " + node.vectClock.toString());
+                    syncSend(channel, message_content);
                     sentMessages++;
                     roundMessages++;
                     waitStart = System.currentTimeMillis();
@@ -251,7 +250,6 @@ public class Node extends Thread {
 
             }
         }
-        System.out.println("Sent all messages------------------------------------------------------------------------------------");
         while (!terminate.get()) {
             waitSynchronized(minSendDelay);
             active.set(false);
@@ -285,9 +283,8 @@ public class Node extends Thread {
 
 
     public void takeSnapshot() {
-        System.out.println("Syncing");
         synchronized (vectClock) {
-            System.out.println("Taking snapshot. Is active: " + active.get());
+            System.out.println("Taking snapshot");
             snapshot = new ArrayList<>();
             System.out.print("vectClock: ");
             for (int i : vectClock) {
@@ -342,19 +339,15 @@ public class Node extends Thread {
             vcMap.put(i, clock);
             String outputFileName = filename + "-" + i + ".out";
             try (BufferedWriter writer = new BufferedWriter(new FileWriter(outputFileName, true))){
-                if (clock != null) {
-                    for (int j : clock) {
-                        writer.write(j + " ");
-                    }
-                } else {
-                    System.out.println("Null clock for process " + i);
+                for (int j : clock) {
+                    writer.write(j + " ");
                 }
                 writer.write("\n");
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
         }
-        System.out.println("Consistency: " + isConsistent(vcMap));
+        System.out.println("Snapshot consistent: " + isConsistent(vcMap));
 
         System.out.println("All passive: " + allPassive);
         System.out.println("Messages in transit: " + messagesInTransit);
@@ -536,7 +529,6 @@ public class Node extends Thread {
             syncIncr();
             Message msg = new Message(nodeID, MessageType.application, message_content, vectClock);
             msg.send(sc);
-            System.out.println("Sending to " + nodeID + ": " + message_content + " Vector Clock: " + node.vectClock.toString());
 
         }
     }
