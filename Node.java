@@ -201,9 +201,7 @@ public class Node extends Thread {
         }
         while (sentMessages < maxNumber) {
             while (!active.get() && !startSnapshot.get() && !terminate.get() && !startConvergeCast.get()) {
-                System.out.println("2");
                 this.waitSynchronized();
-                System.out.println("2.5");
             }
             if (startSnapshot.get()) {
                 takeSnapshot();
@@ -390,7 +388,7 @@ public class Node extends Thread {
         }
     }
 
-    public void waitSynchronized(int minSendDelay) {
+    public void waitSynchronized(long minSendDelay) {
         synchronized (this){
             try {
                 wait(minSendDelay);
