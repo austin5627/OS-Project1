@@ -72,6 +72,7 @@ public class Launcher {
 				} else if (lineNumber <= numNodes){
 					Matcher nodeMatcher = nodePattern.matcher(line);
 					if (!nodeMatcher.find()){
+						System.out.println(line);
 						System.out.println("No matches");
 						System.exit(0);
 					}
