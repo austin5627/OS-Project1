@@ -231,7 +231,6 @@ public class Node extends Thread {
                 }
                 if (System.currentTimeMillis() - waitStart < minSendDelay) {
                     waitDelay = minSendDelay - (System.currentTimeMillis() - waitStart);
-                    System.out.println("Wait longer");
                     continue;
                 }
                 int neighborIndex = (int) neighborMapKeys[random.nextInt(neighborMapKeys.length)];
@@ -544,7 +543,7 @@ public class Node extends Thread {
             syncIncr();
             Message msg = new Message(nodeID, MessageType.application, message_content, vectClock);
             msg.send(sc);
-            System.out.println("\t" + message_content + " Vector Clock: " + node.vectClock.toString());
+            System.out.println("Sending to " + nodeID + ": " + message_content + " Vector Clock: " + node.vectClock.toString());
 
         }
     }
