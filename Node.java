@@ -298,6 +298,7 @@ public class Node extends Thread {
                 Message snapshotMsg = new Message(nodeID, MessageType.control, "MARKER");
                 snapshotMsg.send(channelMap.get(channelId));
             }
+            this.notifyAll();
             startSnapshot.set(false);
             endSnapshot.set(false);
        }
@@ -504,6 +505,9 @@ public class Node extends Thread {
     }
 
     public void syncSet(int[] msgVectClock) {
+        if (startSnapshot.get()) {
+            waitSynchronized();
+        }
         synchronized (vectClock) {
             for (int i = 0; i < vectClock.size(); i++) {
                 if (vectClock.get(i) < msgVectClock[i]) {
