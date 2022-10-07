@@ -44,7 +44,7 @@ class NodeState implements Serializable {
 
 public class Node extends Thread {
     private static Node node;
-    private final int minPerActive, maxPerActive, minSendDelay, snapShotDelay, maxNumber;
+    public final int minPerActive, maxPerActive, minSendDelay, snapShotDelay, maxNumber;
     private final int nodeID;
     private final String ip;
     private final int port;
@@ -53,7 +53,7 @@ public class Node extends Thread {
     private final int numNodes;
     public AtomicBoolean active;
 
-    private int sentMessages;
+    public int sentMessages;
     final List<Integer> vectClock;
 
     private final AtomicInteger numFinishedListening = new AtomicInteger(0);
@@ -253,6 +253,7 @@ public class Node extends Thread {
         }
         System.out.println("Sent all messages------------------------------------------------------------------------------------");
         while (true) {
+            waitSynchronized(minSendDelay);
             active.set(false);
             //System.out.println("loopin");
             if (startSnapshot.get()) {

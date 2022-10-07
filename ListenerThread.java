@@ -53,7 +53,8 @@ public class ListenerThread extends Thread {
                     int[] msgVectClock = message.vectorClock;
                     System.out.println("Received: " + message.message + " with vector clock: " + Arrays.toString(msgVectClock));
                     ownNode.syncSet(msgVectClock);
-                    if (!ownNode.active.getAndSet(true)){
+                    if (!ownNode.active.get() && ownNode.sentMessages < ownNode.maxNumber){
+                        ownNode.active.set(true);
                         notifyNode();
                     }
                 } else if (message.msgType == MessageType.state) {
