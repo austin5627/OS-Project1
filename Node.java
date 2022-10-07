@@ -248,6 +248,7 @@ public class Node extends Thread {
 
             }
         }
+        System.out.println("Sent all messages");
         while (true) {
             active.set(false);
             //System.out.println("loopin");
@@ -336,7 +337,6 @@ public class Node extends Thread {
             return;
         }
         nodeStateMap.put(nodeID, new NodeState(nodeID, snapshot, active.get(), inTransitMsgs));
-        // do stuff
         boolean allPassive = true;
         boolean messagesInTransit = false;
         Map<Integer, List<Integer>> vcMap = new HashMap<>();
