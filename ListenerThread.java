@@ -47,7 +47,7 @@ public class ListenerThread extends Thread {
                     }
 
                 } else if (message.msgType == MessageType.application){
-                    if (ownNode.redChannels.contains(connectedNode)) {
+                    if (ownNode.redChannels.contains(connectedNode) && !ownNode.startSnapshot.get()) {
                         ownNode.addMsg(message);
                     }
                     int[] msgVectClock = message.vectorClock;

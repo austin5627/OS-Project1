@@ -59,7 +59,7 @@ public class Node extends Thread {
 
     private final AtomicInteger numFinishedListening = new AtomicInteger(0);
     private final AtomicBoolean allConnectionsEstablished = new AtomicBoolean(false);
-    private final AtomicBoolean startSnapshot = new AtomicBoolean(false);
+    public final AtomicBoolean startSnapshot = new AtomicBoolean(false);
     public final AtomicBoolean endSnapshot = new AtomicBoolean(true);
     private final AtomicBoolean startConvergeCast = new AtomicBoolean(false);
     public final AtomicBoolean
@@ -204,17 +204,17 @@ public class Node extends Thread {
             while (!active.get() && !startSnapshot.get() && !terminate.get() && !startConvergeCast.get()) {
                 this.waitSynchronized();
             }
-            if (terminate.get()) {
-                terminateProtocol();
-                return;
+            if (startSnapshot.get()) {
+                takeSnapshot();
+                continue;
             }
-            else if (startConvergeCast.get()) {
+            if (startConvergeCast.get()) {
                 convergeCast();
                 continue;
             }
-            else if (startSnapshot.get()) {
-                takeSnapshot();
-                continue;
+            if (terminate.get()) {
+                terminateProtocol();
+                return;
             }
             Object[] neighborMapKeys = neighborMap.keySet().toArray();
             Random random = new Random();
@@ -293,21 +293,25 @@ public class Node extends Thread {
 
 
     public void takeSnapshot() {
-        System.out.println("Taking snapshot");
-        snapshot = new ArrayList<>();
-        System.out.print("vectClock: ");
-        for (int i : vectClock) {
-            System.out.print(i + " ");
+        synchronized (LOCK) {
+            synchronized (vectClock) {
+                System.out.println("Taking snapshot");
+                snapshot = new ArrayList<>();
+                System.out.print("vectClock: ");
+                for (int i : vectClock) {
+                    System.out.print(i + " ");
+                }
+                System.out.println();
+                snapshot.addAll(vectClock);
+                nodeStateMap.clear();
+                for (SctpChannel channel : channelMap.values()) {
+                    Message snapshotMsg = new Message(nodeID, MessageType.control, "MARKER");
+                    snapshotMsg.send(channel);
+                }
+                startSnapshot.set(false);
+                endSnapshot.set(false);
+            }
         }
-        System.out.println();
-        snapshot.addAll(vectClock);
-        nodeStateMap.clear();
-        for (SctpChannel channel: channelMap.values()) {
-            Message snapshotMsg = new Message(nodeID, MessageType.control, "MARKER");
-            snapshotMsg.send(channel);
-        }
-        startSnapshot.set(false);
-        endSnapshot.set(false);
     }
 
     public void convergeCast() {
