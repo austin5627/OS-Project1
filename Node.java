@@ -252,30 +252,17 @@ public class Node extends Thread {
             }
         }
         System.out.println("Sent all messages------------------------------------------------------------------------------------");
-        while (true) {
+        while (!terminate.get()) {
             waitSynchronized(minSendDelay);
             active.set(false);
-            //System.out.println("loopin");
             if (startSnapshot.get()) {
                 takeSnapshot();
-                while (startSnapshot.get()) {
-                    try {
-                        Thread.sleep(2);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                        System.exit(0);
-                    }
-                }
-                if (nodeID == 0) {
-                    processSnapshot();
-                } else {
-                    convergeCast();
-                }
             }
-            if (terminate.get()) {
-                terminateProtocol();
+            else if (startConvergeCast.get()) {
+                convergeCast();
             }
         }
+        terminateProtocol();
     }
 
     private void terminateProtocol() {
