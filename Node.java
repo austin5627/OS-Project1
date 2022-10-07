@@ -304,9 +304,10 @@ public class Node extends Thread {
                 System.out.println();
                 snapshot.addAll(vectClock);
                 nodeStateMap.clear();
-                for (SctpChannel channel : channelMap.values()) {
+                for (int channelId : channelMap.keySet()) {
+                    System.out.println("Response marker from " + nodeID + " to " + channelId);
                     Message snapshotMsg = new Message(nodeID, MessageType.control, "MARKER");
-                    snapshotMsg.send(channel);
+                    snapshotMsg.send(channelMap.get(channelId));
                 }
                 startSnapshot.set(false);
                 endSnapshot.set(false);
