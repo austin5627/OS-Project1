@@ -445,38 +445,36 @@ public class Node extends Thread {
     }
 
     public void markerActions(int connectedNode, Message msg) {
-        synchronized (LOCK) {
-            synchronized (redChannels) {
-                // Need to synchronize this check so multiple channels can't think they are the first to receive a marker
-                if (redChannels.isEmpty()) {
-                    System.out.println("First marker received");
-                    treeParent = connectedNode;
-                    redChannels.addAll(neighborMap.keySet());
-                    redChannels.remove(connectedNode);
-                    startSnapshot.set(true);
+        synchronized (redChannels) {
+            // Need to synchronize this check so multiple channels can't think they are the first to receive a marker
+            if (redChannels.isEmpty()) {
+                System.out.println("First marker received");
+                treeParent = connectedNode;
+                redChannels.addAll(neighborMap.keySet());
+                redChannels.remove(connectedNode);
+                startSnapshot.set(true);
+                synchronized (this){
+                    this.notify();
+                }
+            }
+            else {
+                redChannels.remove(connectedNode);
+            }
+            // Outside the else for the case that a node only has one connection
+            if (redChannels.isEmpty()) {
+                System.out.println("All markers received");
+                while (startSnapshot.get()) {
+                    try {
+                        Thread.sleep(2);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                        System.exit(0);
+                    }
+                }
+                if (nodeID != 0) {
+                    startConvergeCast.set(true);
                     synchronized (this){
                         this.notify();
-                    }
-                }
-                else {
-                    redChannels.remove(connectedNode);
-                }
-                // Outside the else for the case that a node only has one connection
-                if (redChannels.isEmpty()) {
-                    System.out.println("All markers received");
-                    while (startSnapshot.get()) {
-                        try {
-                            Thread.sleep(2);
-                        } catch (InterruptedException e) {
-                            e.printStackTrace();
-                            System.exit(0);
-                        }
-                    }
-                    if (nodeID != 0) {
-                        startConvergeCast.set(true);
-                        synchronized (this){
-                            this.notify();
-                        }
                     }
                 }
             }
@@ -523,31 +521,25 @@ public class Node extends Thread {
     }
 
     public void syncIncr() {
-        synchronized (LOCK) {
-            synchronized (vectClock) {
-                vectClock.set(nodeID, vectClock.get(nodeID) + 1);
-            }
+        synchronized (vectClock) {
+            vectClock.set(nodeID, vectClock.get(nodeID) + 1);
         }
     }
 
     public void syncSet(int[] msgVectClock) {
-        synchronized (LOCK) {
-            synchronized (vectClock) {
-                for (int i = 0; i < vectClock.size(); i++) {
-                    if (vectClock.get(i) < msgVectClock[i]) {
-                        vectClock.set(i, msgVectClock[i]);
-                    }
+        synchronized (vectClock) {
+            for (int i = 0; i < vectClock.size(); i++) {
+                if (vectClock.get(i) < msgVectClock[i]) {
+                    vectClock.set(i, msgVectClock[i]);
                 }
-                syncIncr();
             }
+            syncIncr();
         }
     }
 
     public int syncGet(int i) {
-        synchronized (LOCK) {
-            synchronized (vectClock) {
-                return vectClock.get(i);
-            }
+        synchronized (vectClock) {
+            return vectClock.get(i);
         }
     }
 
@@ -555,15 +547,13 @@ public class Node extends Thread {
         inTransitMsgs.add(msg);
     }
 
-    public void syncSend(SctpChannel sc, String message_content) throws Exception{
-        synchronized (LOCK) {
-            synchronized (vectClock) {
-                syncIncr();
-                Message msg = new Message(nodeID, MessageType.application, message_content, vectClock);
-                msg.send(sc);
-                System.out.println("\t" + message_content + " Vector Clock: " + node.vectClock.toString());
+    public void syncSend(SctpChannel sc, String message_content) {
+        synchronized (vectClock) {
+            syncIncr();
+            Message msg = new Message(nodeID, MessageType.application, message_content, vectClock);
+            msg.send(sc);
+            System.out.println("\t" + message_content + " Vector Clock: " + node.vectClock.toString());
 
-            }
         }
     }
 
