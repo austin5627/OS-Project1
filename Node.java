@@ -294,7 +294,7 @@ public class Node extends Thread {
     public void takeSnapshot() {
         System.out.println("Syncing");
         synchronized (vectClock) {
-            System.out.println("Taking snapshot");
+            System.out.println("Taking snapshot. Is active: " + active.get());
             snapshot = new ArrayList<>();
             System.out.print("vectClock: ");
             for (int i : vectClock) {
