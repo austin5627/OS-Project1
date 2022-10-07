@@ -202,6 +202,7 @@ public class Node extends Thread {
         }
         while (sentMessages < maxNumber) {
             while (!active.get() && !startSnapshot.get() && !terminate.get() && !startConvergeCast.get()) {
+                System.out.println("2");
                 this.waitSynchronized();
             }
             if (startSnapshot.get()) {
@@ -222,6 +223,7 @@ public class Node extends Thread {
             long waitStart = 0;
             while (sentMessages < numMsgs) {
                 // Wait minSendDelay to send next message
+                System.out.println("3");
                 waitSynchronized(minSendDelay);
                 if (startSnapshot.get()) {
                     takeSnapshot();
